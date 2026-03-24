@@ -1,0 +1,89 @@
+version: "3.9"
+
+services:
+  mval:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "8000:8000"
+    environment:
+      POSTGRES_HOST: postgres
+      POSTGRES_PORT: 5432
+      POSTGRES_DB: mval
+      POSTGRES_USER: mval
+      POSTGRES_PASSWORD: mval_secret
+      REDIS_URL: redis://redis:6379/0
+      REDTEAM_URL: http://redteam:8001
+      REDTEAM_TIMEOUT_SECONDS: 15
+      POLICY_CACHE_TTL_SECONDS: 300
+      VALIDATION_TIMEOUT_SECONDS: 30
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    networks:
+      - mval-net
+
+  redteam:
+    build:
+      context: .
+      dockerfile: Dockerfile.redteam
+    ports:
+      - "8001:8001"
+    environment:
+      OLLAMA_BASE_URL: http://ollama:11434
+      OLLAMA_MODEL: llama3.2
+    depends_on:
+      - ollama
+    networks:
+      - mval-net
+
+  postgres:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_DB: mval
+      POSTGRES_USER: mval
+      POSTGRES_PASSWORD: mval_secret
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+      - ./migrations:/docker-entrypoint-initdb.d
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U mval"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+    networks:
+      - mval-net
+
+  redis:
+    image: redis:7-alpine
+    ports:
+      - "6379:6379"
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+    networks:
+      - mval-net
+
+  ollama:
+    image: ollama/ollama:latest
+    ports:
+      - "11434:11434"
+    volumes:
+      - ollama-data:/root/.ollama
+    networks:
+      - mval-net
+
+volumes:
+  pgdata:
+  ollama-data:
+
+networks:
+  mval-net:
+    driver: bridge
