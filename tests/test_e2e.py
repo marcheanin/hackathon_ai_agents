@@ -126,6 +126,8 @@ async def test_api_generate_e2e() -> None:
     print("  API E2E: POST /api/v1/generate")
     _print_benchmark("Total API response", total_time)
 
+    if response.status_code != 200:
+        print(f"  Response body: {response.text[:500]}")
     assert response.status_code == 200
     data = response.json()
     print(f"  Status: {data['status']}")

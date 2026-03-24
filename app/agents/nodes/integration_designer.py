@@ -4,13 +4,12 @@ RETRYABLE (вместе с component_architect).
 LLM проектирует потоки данных между компонентами.
 Работает с готовыми component id — нет риска несоответствия.
 """
-import json
-
 from langchain_core.messages import HumanMessage, SystemMessage
 from pydantic import BaseModel, Field
 
 from app.agents.state import AgentState
 from app.llm.client import get_llm_json
+from app.llm.json_utils import parse_llm_json
 from app.schemas.responses import DataFlow
 
 
@@ -63,7 +62,7 @@ async def design_integrations_node(state: AgentState) -> dict:
     ]
 
     response = await llm.ainvoke(messages)
-    result = DataFlowList(**json.loads(response.content))
+    result = DataFlowList(**parse_llm_json(response.content))
 
     # Валидация: фильтруем потоки с несуществующими id
     valid_ids = {c.id for c in (state.get("components") or [])}

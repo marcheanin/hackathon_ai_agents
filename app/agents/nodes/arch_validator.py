@@ -6,11 +6,13 @@ LLM оценивает черновик архитектуры по 4 крите
 import json
 
 from langchain_core.messages import HumanMessage, SystemMessage
+
 from pydantic import BaseModel, Field
 
 from app.agents.state import AgentState
 from app.config import settings
 from app.llm.client import get_llm_json
+from app.llm.json_utils import parse_llm_json
 from app.schemas.responses import ValidationResult
 
 
@@ -67,7 +69,23 @@ async def validate_architecture_node(state: AgentState) -> dict:
     ]
 
     response = await llm.ainvoke(messages)
-    result = ValidationOutput(**json.loads(response.content))
+    raw = parse_llm_json(response.content)
+
+    # LLM иногда возвращает scores как вложенный dict — распаковываем на верхний уровень
+    if "scores" in raw and isinstance(raw["scores"], dict):
+        for k in ("completeness", "correctness", "applicability", "feasibility"):
+            if k not in raw and k in raw["scores"]:
+                raw[k] = raw["scores"][k]
+        del raw["scores"]
+
+    # LLM иногда возвращает feedback как dict — конвертируем в строку
+    if isinstance(raw.get("feedback"), dict):
+        raw["feedback"] = json.dumps(raw["feedback"], ensure_ascii=False)
+    # issues может быть не list
+    if not isinstance(raw.get("issues"), list):
+        raw["issues"] = [str(raw["issues"])] if raw.get("issues") else []
+
+    result = ValidationOutput(**raw)
 
     scores = {
         "completeness": result.completeness,

@@ -3,13 +3,12 @@ Node 3: Component Architect
 RETRYABLE — при отклонении валидатором возвращается сюда с feedback.
 LLM проектирует список компонентов системы на основе запроса и паттернов.
 """
-import json
-
 from langchain_core.messages import HumanMessage, SystemMessage
 from pydantic import BaseModel, Field
 
 from app.agents.state import AgentState
 from app.llm.client import get_llm_json
+from app.llm.json_utils import parse_llm_json
 from app.schemas.responses import Component, ComponentType
 
 
@@ -70,7 +69,7 @@ async def design_components_node(state: AgentState) -> dict:
     ]
 
     response = await llm.ainvoke(messages)
-    result = ComponentList(**json.loads(response.content))
+    result = ComponentList(**parse_llm_json(response.content))
 
     return {
         "components": result.components,

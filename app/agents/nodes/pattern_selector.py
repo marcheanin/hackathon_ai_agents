@@ -3,13 +3,12 @@ Node 2: Pattern Selector
 Выполняется ОДИН РАЗ после RAG retrieval.
 LLM выбирает 2-3 наиболее релевантных паттерна из RAG-результатов.
 """
-import json
-
 from langchain_core.messages import HumanMessage, SystemMessage
 from pydantic import BaseModel, Field
 
 from app.agents.state import AgentState
 from app.llm.client import get_llm_json
+from app.llm.json_utils import parse_llm_json
 
 
 class PatternSelection(BaseModel):
@@ -52,7 +51,7 @@ async def select_patterns_node(state: AgentState) -> dict:
     ]
 
     response = await llm.ainvoke(messages)
-    result = PatternSelection(**json.loads(response.content))
+    result = PatternSelection(**parse_llm_json(response.content))
 
     return {
         "selected_patterns": result.selected_patterns,
