@@ -10,7 +10,7 @@ services:
     environment:
       QDRANT__SERVICE__HTTP_PORT: 6333
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:6333/readyz"]
+      test: ["CMD-SHELL", "bash -c 'echo > /dev/tcp/localhost/6333'"]
       interval: 10s
       timeout: 5s
       retries: 5
@@ -29,6 +29,8 @@ services:
     depends_on:
       qdrant:
         condition: service_healthy
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
     volumes:
       - ./scripts/patterns:/app/scripts/patterns:ro
 

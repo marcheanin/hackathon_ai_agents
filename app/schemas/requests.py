@@ -6,7 +6,7 @@ class GenerateRequest(BaseModel):
         ...,
         description="Описание агента или системы, архитектуру которой нужно спроектировать",
         min_length=10,
-        max_length=4000,
+        max_length=16000,
         examples=["Нужен агент для автоматической обработки email и создания тикетов в Jira"],
     )
     context: dict | None = Field(

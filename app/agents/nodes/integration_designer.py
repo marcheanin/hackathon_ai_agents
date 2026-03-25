@@ -7,6 +7,7 @@ LLM проектирует потоки данных между компонен
 from langchain_core.messages import HumanMessage, SystemMessage
 from pydantic import BaseModel, Field
 
+from app.agents.context_utils import format_context
 from app.agents.state import AgentState
 from app.llm.client import get_llm_json
 from app.llm.json_utils import parse_llm_json
@@ -53,7 +54,7 @@ async def design_integrations_node(state: AgentState) -> dict:
         SystemMessage(content=SYSTEM_PROMPT),
         HumanMessage(
             content=(
-                f"User request: {state['user_request']}\n\n"
+                f"User request: {state['user_request']}{format_context(state)}\n\n"
                 f"Primary pattern: {state.get('primary_pattern', '')}\n\n"
                 f"Components:\n{components_text}"
                 f"{feedback_section}"

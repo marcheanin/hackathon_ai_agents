@@ -3,11 +3,51 @@ import json
 import re
 
 
+def _find_balanced_json(text: str) -> str | None:
+    """Находит первый сбалансированный JSON-объект в тексте."""
+    start = text.find("{")
+    if start == -1:
+        return None
+
+    depth = 0
+    in_string = False
+    escape = False
+
+    for i in range(start, len(text)):
+        ch = text[i]
+
+        if escape:
+            escape = False
+            continue
+
+        if ch == "\\":
+            if in_string:
+                escape = True
+            continue
+
+        if ch == '"':
+            in_string = not in_string
+            continue
+
+        if in_string:
+            continue
+
+        if ch == "{":
+            depth += 1
+        elif ch == "}":
+            depth -= 1
+            if depth == 0:
+                return text[start : i + 1]
+
+    return None
+
+
 def parse_llm_json(content: str) -> dict:
     """Парсит JSON из ответа LLM, обрабатывая типичные проблемы:
     - Markdown code fences (```json ... ```)
     - Лишний текст до/после JSON
     - Пустой content
+    - Обрезанный JSON (незакрытые скобки)
     """
     if not content or not content.strip():
         raise ValueError("LLM returned empty content")
@@ -25,7 +65,15 @@ def parse_llm_json(content: str) -> dict:
     except json.JSONDecodeError:
         pass
 
-    # Ищем первый JSON-объект в тексте
+    # Ищем первый сбалансированный JSON-объект
+    balanced = _find_balanced_json(text)
+    if balanced:
+        try:
+            return json.loads(balanced)
+        except json.JSONDecodeError:
+            pass
+
+    # Fallback: жадный regex
     match = re.search(r"\{[\s\S]*\}", text)
     if match:
         try:

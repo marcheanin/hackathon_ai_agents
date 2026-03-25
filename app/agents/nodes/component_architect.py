@@ -6,6 +6,7 @@ LLM проектирует список компонентов системы н
 from langchain_core.messages import HumanMessage, SystemMessage
 from pydantic import BaseModel, Field
 
+from app.agents.context_utils import format_context
 from app.agents.state import AgentState
 from app.llm.client import get_llm_json
 from app.llm.json_utils import parse_llm_json
@@ -51,9 +52,7 @@ async def design_components_node(state: AgentState) -> dict:
         feedback_items = "\n".join(f"- {fb}" for fb in state["feedback_history"])
         feedback_section = f"\n\nPREVIOUS VALIDATION FEEDBACK (address these issues):\n{feedback_items}"
 
-    context_section = ""
-    if state.get("context"):
-        context_section = f"\n\nAdditional context: {state['context']}"
+    context_section = format_context(state)
 
     messages = [
         SystemMessage(content=SYSTEM_PROMPT),

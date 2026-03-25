@@ -20,6 +20,7 @@ def get_llm_json() -> ChatOllama:
         temperature=settings.llm_temperature,
         format="json",
         reasoning=False,
+        num_predict=4096,
     )
 
 
