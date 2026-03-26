@@ -1,0 +1,27 @@
+{
+  "client_delivery": [
+    "Bank Service Desk Connector API",
+    "Client SLA & Escalation API",
+    "Release Notes Publishing API"
+  ],
+  "product_knowledge": [
+    "Documentation Graph API",
+    "Product & Version Registry API",
+    "Full-Text Search API"
+  ],
+  "engineering_platform": [
+    "Internal Git / MR API",
+    "CI/CD Orchestrator API",
+    "Work Tracker (internal) API"
+  ],
+  "security_compliance": [
+    "Vulnerability & CVE Aggregator API",
+    "SBOM Ingest API",
+    "Binary Authorization API"
+  ],
+  "platform": [
+    "Internal Service Catalog API",
+    "Notification Router API",
+    "Secrets Broker API"
+  ]
+}

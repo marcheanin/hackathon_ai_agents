@@ -1,0 +1,9 @@
+{
+  "domains": [
+    { "domain": "client_delivery", "sub_domains": ["support_portal", "releases", "contracts"] },
+    { "domain": "product_knowledge", "sub_domains": ["documentation", "registry"] },
+    { "domain": "engineering_platform", "sub_domains": ["git", "cicd", "work_management"] },
+    { "domain": "security_compliance", "sub_domains": ["supply_chain", "audit"] },
+    { "domain": "platform", "sub_domains": ["observability", "internal_tools"] }
+  ]
+}

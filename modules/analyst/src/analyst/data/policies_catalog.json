@@ -1,0 +1,25 @@
+{
+  "client_delivery": [
+    "NDA & data residency with bank clients",
+    "Ticket data retention 7y (configurable)",
+    "Bank communication only via approved channels"
+  ],
+  "product_knowledge": [
+    "Docs classification: public / partner / internal",
+    "Version truth source = internal registry"
+  ],
+  "engineering_platform": [
+    "Branch protection & mandatory review on main",
+    "Signed commits for release branches",
+    "No direct push to production configs"
+  ],
+  "security_compliance": [
+    "OWASP ASVS for delivered software",
+    "CVE response SLA by severity",
+    "SBOM required per release artifact"
+  ],
+  "platform": [
+    "SOC2-style audit logging for admin actions",
+    "Encryption at rest for internal artifacts"
+  ]
+}

@@ -1,0 +1,1002 @@
+[
+  {
+    "id": "agent_bank_client_ticketing_hub",
+    "name": "Bank Client Ticketing Hub",
+    "version": "2.3.0",
+    "status": "active",
+    "description": "Приём и маршрутизация обращений от банков-клиентов: REST/webhook, SLA, эскалации, уведомления о статусе (в т.ч. SMS/e-mail).\n\n[auto-expanded-details]\nagent_id: agent_bank_client_ticketing_hub\ndomain: client_delivery/support_portal\ntags: bank-client, tickets, sla, support\ncapabilities: client_ticket_ingest, bank_sla_tracking, escalation_workflow, webhook_ingestion, sms_sending, sms_confirm\ninput.required: ticket_payload, bank_tenant_id\noutput.fields: ticket_id, sla_tier, routing_queue\ndependencies: Bank Service Desk Connector API, Notification Router API\ncomposition_hints: Вешать перед внутренним task tracker bridge, Использовать для единого SLA по всем банкам-тенантам\napi:\n- protocol: REST\n- base_url: https://internal.vendor.example/agents/bank-ticketing/v2\n- auth: OAuth2\n- rate_limit: 400/s\n- docs_url: https://wiki.vendor.example/agents/bank-ticketing\nsla:\n{\"availability_percent\": 99.9, \"latency_p99_ms\": 400, \"support_hours\": \"24/7\"}\n",
+    "domain": "client_delivery",
+    "sub_domain": "support_portal",
+    "capabilities": [
+      "client_ticket_ingest",
+      "bank_sla_tracking",
+      "escalation_workflow",
+      "webhook_ingestion",
+      "sms_sending",
+      "sms_confirm"
+    ],
+    "input_schema": {
+      "type": "object",
+      "required": [
+        "ticket_payload",
+        "bank_tenant_id"
+      ]
+    },
+    "output_schema": {
+      "type": "object",
+      "fields": [
+        "ticket_id",
+        "sla_tier",
+        "routing_queue"
+      ]
+    },
+    "api": {
+      "protocol": "REST",
+      "base_url": "https://internal.vendor.example/agents/bank-ticketing/v2",
+      "auth": "OAuth2",
+      "rate_limit": "400/s",
+      "docs_url": "https://wiki.vendor.example/agents/bank-ticketing"
+    },
+    "mcp_server_uri": "mcp://vendor-agents/bank-ticketing",
+    "owner_team": "client-success-platform",
+    "contact": "cs-platform@vendor.example",
+    "sla": {
+      "availability_percent": 99.9,
+      "latency_p99_ms": 400,
+      "support_hours": "24/7"
+    },
+    "dependencies": [
+      "Bank Service Desk Connector API",
+      "Notification Router API"
+    ],
+    "composable": true,
+    "composition_hints": [
+      "Вешать перед внутренним task tracker bridge",
+      "Использовать для единого SLA по всем банкам-тенантам"
+    ],
+    "tags": [
+      "bank-client",
+      "tickets",
+      "sla",
+      "support"
+    ],
+    "created_at": "2025-04-10T00:00:00Z",
+    "last_updated": "2026-02-10T00:00:00Z",
+    "usage_stats": {
+      "monthly_requests": 890000,
+      "active_consumers": 18
+    }
+  },
+  {
+    "id": "agent_internal_docs_graph",
+    "name": "Internal Documentation Graph",
+    "version": "1.8.2",
+    "status": "active",
+    "description": "Семантический поиск и версионирование внутренней документации (Confluence/Wiki-совместимый граф), QA по регламентам.\n\n[auto-expanded-details]\nagent_id: agent_internal_docs_graph\ndomain: product_knowledge/documentation\ntags: documentation, wiki, search\ncapabilities: documentation_search, wiki_index, doc_versioning, semantic_doc_qa\ndependencies: Documentation Graph API, OpenSearch cluster\ncomposition_hints: Подключать к порталу поддержки для авто-ответов по регламентам\napi:\n- protocol: REST\n- base_url: https://internal.vendor.example/agents/docs-graph/v1\n- auth: OAuth2\n- rate_limit: 800/s\n- docs_url: https://wiki.vendor.example/agents/docs-graph\nsla:\n{\"availability_percent\": 99.85, \"latency_p99_ms\": 350, \"support_hours\": \"business_hours\"}\n",
+    "domain": "product_knowledge",
+    "sub_domain": "documentation",
+    "capabilities": [
+      "documentation_search",
+      "wiki_index",
+      "doc_versioning",
+      "semantic_doc_qa"
+    ],
+    "input_schema": {
+      "type": "object"
+    },
+    "output_schema": {
+      "type": "object"
+    },
+    "api": {
+      "protocol": "REST",
+      "base_url": "https://internal.vendor.example/agents/docs-graph/v1",
+      "auth": "OAuth2",
+      "rate_limit": "800/s",
+      "docs_url": "https://wiki.vendor.example/agents/docs-graph"
+    },
+    "mcp_server_uri": "mcp://vendor-agents/docs-graph",
+    "owner_team": "knowledge-engineering",
+    "contact": "docs-team@vendor.example",
+    "sla": {
+      "availability_percent": 99.85,
+      "latency_p99_ms": 350,
+      "support_hours": "business_hours"
+    },
+    "dependencies": [
+      "Documentation Graph API",
+      "OpenSearch cluster"
+    ],
+    "composable": true,
+    "composition_hints": [
+      "Подключать к порталу поддержки для авто-ответов по регламентам"
+    ],
+    "tags": [
+      "documentation",
+      "wiki",
+      "search"
+    ],
+    "created_at": "2025-05-01T00:00:00Z",
+    "last_updated": "2026-01-20T00:00:00Z",
+    "usage_stats": {
+      "monthly_requests": 1200000,
+      "active_consumers": 24
+    }
+  },
+  {
+    "id": "agent_product_version_registry",
+    "name": "Product & Version Registry",
+    "version": "3.0.1",
+    "status": "active",
+    "description": "Канонический реестр продуктовых линеек, semver, матрица совместимости, EOL и привязка к релизным поездам.\n\n[auto-expanded-details]\nagent_id: agent_product_version_registry\ndomain: product_knowledge/registry\ntags: products, versions, semver, eol\ncapabilities: product_line_registry, semver_matrix, eol_policy_check, release_train_mapping\ndependencies: Product & Version Registry API\ncomposition_hints: Использовать в CI для проверки допустимости зависимостей между линейками\napi:\n- protocol: REST\n- base_url: https://internal.vendor.example/agents/product-registry/v3\n- auth: OAuth2\n- rate_limit: 600/s\n- docs_url: https://wiki.vendor.example/agents/product-registry\nsla:\n{\"availability_percent\": 99.95, \"latency_p99_ms\": 120, \"support_hours\": \"24/7\"}\n",
+    "domain": "product_knowledge",
+    "sub_domain": "registry",
+    "capabilities": [
+      "product_line_registry",
+      "semver_matrix",
+      "eol_policy_check",
+      "release_train_mapping"
+    ],
+    "input_schema": {
+      "type": "object"
+    },
+    "output_schema": {
+      "type": "object"
+    },
+    "api": {
+      "protocol": "REST",
+      "base_url": "https://internal.vendor.example/agents/product-registry/v3",
+      "auth": "OAuth2",
+      "rate_limit": "600/s",
+      "docs_url": "https://wiki.vendor.example/agents/product-registry"
+    },
+    "mcp_server_uri": "mcp://vendor-agents/product-registry",
+    "owner_team": "knowledge-engineering",
+    "contact": "registry@vendor.example",
+    "sla": {
+      "availability_percent": 99.95,
+      "latency_p99_ms": 120,
+      "support_hours": "24/7"
+    },
+    "dependencies": [
+      "Product & Version Registry API"
+    ],
+    "composable": true,
+    "composition_hints": [
+      "Использовать в CI для проверки допустимости зависимостей между линейками"
+    ],
+    "tags": [
+      "products",
+      "versions",
+      "semver",
+      "eol"
+    ],
+    "created_at": "2024-12-01T00:00:00Z",
+    "last_updated": "2026-02-18T00:00:00Z",
+    "usage_stats": {
+      "monthly_requests": 5400000,
+      "active_consumers": 31
+    }
+  },
+  {
+    "id": "agent_supply_chain_security",
+    "name": "Supply Chain Security Scanner",
+    "version": "2.0.4",
+    "status": "active",
+    "description": "Сканирование уязвимостей, валидация SBOM, аудит зависимостей для артефактов, поставляемых банкам.\n\n[auto-expanded-details]\nagent_id: agent_supply_chain_security\ndomain: security_compliance/supply_chain\ntags: cve, sbom, dependencies, security\ncapabilities: vulnerability_scan, sbom_validation, dependency_audit\ninput.required: artifact_ref\noutput.fields: cve_report, sbom_status, gate_decision\ndependencies: Vulnerability & CVE Aggregator API, SBOM Ingest API\ncomposition_hints: Встраивать как обязательный gate перед публикацией релиза для банка\napi:\n- protocol: REST\n- base_url: https://internal.vendor.example/agents/supply-chain/v2\n- auth: OAuth2\n- rate_limit: 200/s\n- docs_url: https://wiki.vendor.example/agents/supply-chain\nsla:\n{\"availability_percent\": 99.9, \"latency_p99_ms\": 900, \"support_hours\": \"24/7\"}\n",
+    "domain": "security_compliance",
+    "sub_domain": "supply_chain",
+    "capabilities": [
+      "vulnerability_scan",
+      "sbom_validation",
+      "dependency_audit"
+    ],
+    "input_schema": {
+      "type": "object",
+      "required": [
+        "artifact_ref"
+      ]
+    },
+    "output_schema": {
+      "type": "object",
+      "fields": [
+        "cve_report",
+        "sbom_status",
+        "gate_decision"
+      ]
+    },
+    "api": {
+      "protocol": "REST",
+      "base_url": "https://internal.vendor.example/agents/supply-chain/v2",
+      "auth": "OAuth2",
+      "rate_limit": "200/s",
+      "docs_url": "https://wiki.vendor.example/agents/supply-chain"
+    },
+    "mcp_server_uri": "mcp://vendor-agents/supply-chain",
+    "owner_team": "product-security",
+    "contact": "sec@vendor.example",
+    "sla": {
+      "availability_percent": 99.9,
+      "latency_p99_ms": 900,
+      "support_hours": "24/7"
+    },
+    "dependencies": [
+      "Vulnerability & CVE Aggregator API",
+      "SBOM Ingest API"
+    ],
+    "composable": true,
+    "composition_hints": [
+      "Встраивать как обязательный gate перед публикацией релиза для банка"
+    ],
+    "tags": [
+      "cve",
+      "sbom",
+      "dependencies",
+      "security"
+    ],
+    "created_at": "2025-01-15T00:00:00Z",
+    "last_updated": "2026-02-22T00:00:00Z",
+    "usage_stats": {
+      "monthly_requests": 410000,
+      "active_consumers": 14
+    }
+  },
+  {
+    "id": "agent_gitforge_automation",
+    "name": "Gitforge Automation Agent",
+    "version": "1.5.0",
+    "status": "active",
+    "description": "Управление жизненным циклом внутренних репозиториев, политики MR, защита веток, подписанные коммиты.\n\n[auto-expanded-details]\nagent_id: agent_gitforge_automation\ndomain: engineering_platform/git\ntags: git, merge-request, repos\ncapabilities: repository_lifecycle, merge_request_policy, branch_protection, signed_commits\ndependencies: Internal Git / MR API\ncomposition_hints: Связать с work tracker для автозакрытия задач по merge\napi:\n- protocol: REST\n- base_url: https://internal.vendor.example/agents/gitforge/v1\n- auth: OAuth2\n- rate_limit: 500/s\n- docs_url: https://wiki.vendor.example/agents/gitforge\nsla:\n{\"availability_percent\": 99.95, \"latency_p99_ms\": 250, \"support_hours\": \"24/7\"}\n",
+    "domain": "engineering_platform",
+    "sub_domain": "git",
+    "capabilities": [
+      "repository_lifecycle",
+      "merge_request_policy",
+      "branch_protection",
+      "signed_commits"
+    ],
+    "input_schema": {
+      "type": "object"
+    },
+    "output_schema": {
+      "type": "object"
+    },
+    "api": {
+      "protocol": "REST",
+      "base_url": "https://internal.vendor.example/agents/gitforge/v1",
+      "auth": "OAuth2",
+      "rate_limit": "500/s",
+      "docs_url": "https://wiki.vendor.example/agents/gitforge"
+    },
+    "mcp_server_uri": "mcp://vendor-agents/gitforge",
+    "owner_team": "developer-platform",
+    "contact": "devplatform@vendor.example",
+    "sla": {
+      "availability_percent": 99.95,
+      "latency_p99_ms": 250,
+      "support_hours": "24/7"
+    },
+    "dependencies": [
+      "Internal Git / MR API"
+    ],
+    "composable": true,
+    "composition_hints": [
+      "Связать с work tracker для автозакрытия задач по merge"
+    ],
+    "tags": [
+      "git",
+      "merge-request",
+      "repos"
+    ],
+    "created_at": "2025-03-20T00:00:00Z",
+    "last_updated": "2026-02-05T00:00:00Z",
+    "usage_stats": {
+      "monthly_requests": 2800000,
+      "active_consumers": 42
+    }
+  },
+  {
+    "id": "agent_cicd_pipeline_factory",
+    "name": "CI/CD Pipeline Factory",
+    "version": "4.2.0",
+    "status": "active",
+    "description": "Фабрика шаблонов пайплайнов, подпись артефактов, deployment gates между средами.\n\n[auto-expanded-details]\nagent_id: agent_cicd_pipeline_factory\ndomain: engineering_platform/cicd\ntags: ci, cd, pipelines, signing\ncapabilities: pipeline_template_library, build_artifact_signing, deployment_gate\ndependencies: CI/CD Orchestrator API, Binary Authorization API\ncomposition_hints: Подключать SBOM-шаг из supply-chain агента перед promotion\napi:\n- protocol: REST\n- base_url: https://internal.vendor.example/agents/cicd-factory/v4\n- auth: OAuth2\n- rate_limit: 300/s\n- docs_url: https://wiki.vendor.example/agents/cicd-factory\nsla:\n{\"availability_percent\": 99.9, \"latency_p99_ms\": 600, \"support_hours\": \"24/7\"}\n",
+    "domain": "engineering_platform",
+    "sub_domain": "cicd",
+    "capabilities": [
+      "pipeline_template_library",
+      "build_artifact_signing",
+      "deployment_gate"
+    ],
+    "input_schema": {
+      "type": "object"
+    },
+    "output_schema": {
+      "type": "object"
+    },
+    "api": {
+      "protocol": "REST",
+      "base_url": "https://internal.vendor.example/agents/cicd-factory/v4",
+      "auth": "OAuth2",
+      "rate_limit": "300/s",
+      "docs_url": "https://wiki.vendor.example/agents/cicd-factory"
+    },
+    "mcp_server_uri": "mcp://vendor-agents/cicd-factory",
+    "owner_team": "developer-platform",
+    "contact": "cicd@vendor.example",
+    "sla": {
+      "availability_percent": 99.9,
+      "latency_p99_ms": 600,
+      "support_hours": "24/7"
+    },
+    "dependencies": [
+      "CI/CD Orchestrator API",
+      "Binary Authorization API"
+    ],
+    "composable": true,
+    "composition_hints": [
+      "Подключать SBOM-шаг из supply-chain агента перед promotion"
+    ],
+    "tags": [
+      "ci",
+      "cd",
+      "pipelines",
+      "signing"
+    ],
+    "created_at": "2024-10-01T00:00:00Z",
+    "last_updated": "2026-02-12T00:00:00Z",
+    "usage_stats": {
+      "monthly_requests": 950000,
+      "active_consumers": 27
+    }
+  },
+  {
+    "id": "agent_work_tracker_bridge",
+    "name": "Work Tracker Bridge",
+    "version": "2.1.6",
+    "status": "active",
+    "description": "Синхронизация с внутренним task tracker (собственная реализация): задачи, спринты, связи MR↔тикет, экспорт метрик.\n\n[auto-expanded-details]\nagent_id: agent_work_tracker_bridge\ndomain: engineering_platform/work_management\ntags: tasks, sprint, tracker\ncapabilities: work_item_sync, sprint_velocity_export, cross_tool_linking\ndependencies: Work Tracker (internal) API\ncomposition_hints: Интегрировать с банковским тикетом на входе и git на выходе\napi:\n- protocol: REST\n- base_url: https://internal.vendor.example/agents/work-bridge/v2\n- auth: OAuth2\n- rate_limit: 700/s\n- docs_url: https://wiki.vendor.example/agents/work-bridge\nsla:\n{\"availability_percent\": 99.85, \"latency_p99_ms\": 300, \"support_hours\": \"business_hours\"}\n",
+    "domain": "engineering_platform",
+    "sub_domain": "work_management",
+    "capabilities": [
+      "work_item_sync",
+      "sprint_velocity_export",
+      "cross_tool_linking"
+    ],
+    "input_schema": {
+      "type": "object"
+    },
+    "output_schema": {
+      "type": "object"
+    },
+    "api": {
+      "protocol": "REST",
+      "base_url": "https://internal.vendor.example/agents/work-bridge/v2",
+      "auth": "OAuth2",
+      "rate_limit": "700/s",
+      "docs_url": "https://wiki.vendor.example/agents/work-bridge"
+    },
+    "mcp_server_uri": "mcp://vendor-agents/work-bridge",
+    "owner_team": "developer-platform",
+    "contact": "worktracker@vendor.example",
+    "sla": {
+      "availability_percent": 99.85,
+      "latency_p99_ms": 300,
+      "support_hours": "business_hours"
+    },
+    "dependencies": [
+      "Work Tracker (internal) API"
+    ],
+    "composable": true,
+    "composition_hints": [
+      "Интегрировать с банковским тикетом на входе и git на выходе"
+    ],
+    "tags": [
+      "tasks",
+      "sprint",
+      "tracker"
+    ],
+    "created_at": "2025-02-14T00:00:00Z",
+    "last_updated": "2026-01-28T00:00:00Z",
+    "usage_stats": {
+      "monthly_requests": 1600000,
+      "active_consumers": 36
+    }
+  },
+  {
+    "id": "agent_bank_contract_intel",
+    "name": "Bank Contract Intelligence",
+    "version": "1.2.3",
+    "status": "active",
+    "description": "Разбор договоров с банками: извлечение обязательств, дифф правок, маппинг на внутренние политики и релизные артефакты.\n\n[auto-expanded-details]\nagent_id: agent_bank_contract_intel\ndomain: client_delivery/contracts\ntags: contracts, legal, bank\ncapabilities: contract_clause_extract, amendment_diff, regulatory_mapping\ndependencies: Full-Text Search API\ncomposition_hints: Запускать перед публикацией roadmap клиенту\napi:\n- protocol: REST\n- base_url: https://internal.vendor.example/agents/contract-intel/v1\n- auth: OAuth2\n- rate_limit: 50/s\n- docs_url: https://wiki.vendor.example/agents/contract-intel\nsla:\n{\"availability_percent\": 99.7, \"latency_p99_ms\": 2000, \"support_hours\": \"business_hours\"}\n",
+    "domain": "client_delivery",
+    "sub_domain": "contracts",
+    "capabilities": [
+      "contract_clause_extract",
+      "amendment_diff",
+      "regulatory_mapping"
+    ],
+    "input_schema": {
+      "type": "object"
+    },
+    "output_schema": {
+      "type": "object"
+    },
+    "api": {
+      "protocol": "REST",
+      "base_url": "https://internal.vendor.example/agents/contract-intel/v1",
+      "auth": "OAuth2",
+      "rate_limit": "50/s",
+      "docs_url": "https://wiki.vendor.example/agents/contract-intel"
+    },
+    "mcp_server_uri": "mcp://vendor-agents/contract-intel",
+    "owner_team": "client-success-platform",
+    "contact": "legal-tech@vendor.example",
+    "sla": {
+      "availability_percent": 99.7,
+      "latency_p99_ms": 2000,
+      "support_hours": "business_hours"
+    },
+    "dependencies": [
+      "Full-Text Search API"
+    ],
+    "composable": true,
+    "composition_hints": [
+      "Запускать перед публикацией roadmap клиенту"
+    ],
+    "tags": [
+      "contracts",
+      "legal",
+      "bank"
+    ],
+    "created_at": "2025-06-01T00:00:00Z",
+    "last_updated": "2026-02-01T00:00:00Z",
+    "usage_stats": {
+      "monthly_requests": 120000,
+      "active_consumers": 9
+    }
+  },
+  {
+    "id": "agent_internal_observability_pack",
+    "name": "Internal Observability Pack",
+    "version": "0.9.8",
+    "status": "active",
+    "description": "Экспорт service catalog, SLO burn alerts, привязка runbook из wiki к сервисам.\n\n[auto-expanded-details]\nagent_id: agent_internal_observability_pack\ndomain: platform/observability\ntags: observability, slo, runbooks\ncapabilities: service_catalog_export, slo_burn_alert, runbook_linking\ndependencies: Internal Service Catalog API\ncomposition_hints: Подключать к CI/CD для проверки SLO после деплоя\napi:\n- protocol: REST\n- base_url: https://internal.vendor.example/agents/observe-pack/v1\n- auth: OAuth2\n- rate_limit: 1000/s\n- docs_url: https://wiki.vendor.example/agents/observe-pack\nsla:\n{\"availability_percent\": 99.99, \"latency_p99_ms\": 150, \"support_hours\": \"24/7\"}\n",
+    "domain": "platform",
+    "sub_domain": "observability",
+    "capabilities": [
+      "service_catalog_export",
+      "slo_burn_alert",
+      "runbook_linking"
+    ],
+    "input_schema": {
+      "type": "object"
+    },
+    "output_schema": {
+      "type": "object"
+    },
+    "api": {
+      "protocol": "REST",
+      "base_url": "https://internal.vendor.example/agents/observe-pack/v1",
+      "auth": "OAuth2",
+      "rate_limit": "1000/s",
+      "docs_url": "https://wiki.vendor.example/agents/observe-pack"
+    },
+    "mcp_server_uri": "mcp://vendor-agents/observe-pack",
+    "owner_team": "platform-engineering",
+    "contact": "observe@vendor.example",
+    "sla": {
+      "availability_percent": 99.99,
+      "latency_p99_ms": 150,
+      "support_hours": "24/7"
+    },
+    "dependencies": [
+      "Internal Service Catalog API"
+    ],
+    "composable": true,
+    "composition_hints": [
+      "Подключать к CI/CD для проверки SLO после деплоя"
+    ],
+    "tags": [
+      "observability",
+      "slo",
+      "runbooks"
+    ],
+    "created_at": "2025-08-01T00:00:00Z",
+    "last_updated": "2026-02-15T00:00:00Z",
+    "usage_stats": {
+      "monthly_requests": 2200000,
+      "active_consumers": 22
+    }
+  },
+  {
+    "id": "agent_binary_artifact_registry",
+    "name": "Binary Artifact Registry Agent",
+    "version": "1.0.9",
+    "status": "active",
+    "description": "Внутренний реестр бинарей/пакетов: promotion, политики хранения, связь с подписью и уязвимостями.\n\n[auto-expanded-details]\nagent_id: agent_binary_artifact_registry\ndomain: engineering_platform/cicd\ntags: artifacts, registry, packages\ncapabilities: binary_package_registry, promotion_workflow, retention_policy\ndependencies: Binary Authorization API\ncomposition_hints: Использовать совместно с pipeline factory и supply-chain gate\napi:\n- protocol: REST\n- base_url: https://internal.vendor.example/agents/artifact-registry/v1\n- auth: OAuth2\n- rate_limit: 400/s\n- docs_url: https://wiki.vendor.example/agents/artifact-registry\nsla:\n{\"availability_percent\": 99.9, \"latency_p99_ms\": 280, \"support_hours\": \"24/7\"}\n",
+    "domain": "engineering_platform",
+    "sub_domain": "cicd",
+    "capabilities": [
+      "binary_package_registry",
+      "promotion_workflow",
+      "retention_policy"
+    ],
+    "input_schema": {
+      "type": "object"
+    },
+    "output_schema": {
+      "type": "object"
+    },
+    "api": {
+      "protocol": "REST",
+      "base_url": "https://internal.vendor.example/agents/artifact-registry/v1",
+      "auth": "OAuth2",
+      "rate_limit": "400/s",
+      "docs_url": "https://wiki.vendor.example/agents/artifact-registry"
+    },
+    "mcp_server_uri": "mcp://vendor-agents/artifact-registry",
+    "owner_team": "developer-platform",
+    "contact": "artifacts@vendor.example",
+    "sla": {
+      "availability_percent": 99.9,
+      "latency_p99_ms": 280,
+      "support_hours": "24/7"
+    },
+    "dependencies": [
+      "Binary Authorization API"
+    ],
+    "composable": true,
+    "composition_hints": [
+      "Использовать совместно с pipeline factory и supply-chain gate"
+    ],
+    "tags": [
+      "artifacts",
+      "registry",
+      "packages"
+    ],
+    "created_at": "2025-05-18T00:00:00Z",
+    "last_updated": "2026-02-08T00:00:00Z",
+    "usage_stats": {
+      "monthly_requests": 780000,
+      "active_consumers": 19
+    }
+  },
+  {
+    "id": "agent_ai_product_copilot",
+    "name": "AI Product Copilot",
+    "version": "1.1.0",
+    "status": "active",
+    "description": "Внутренний AI-ассистент для Q&A по продуктам, roadmap и документации с RAG-поиском и цитированием источников.\n\n[auto-expanded-details]\nagent_id: agent_ai_product_copilot\ndomain: product_knowledge/ai_assistant\ntags: ai, rag, assistant, documentation\ncapabilities: semantic_doc_qa, rag_answering, embedding_search, source_attribution\ndependencies: Documentation Graph API, Vector Search API\ncomposition_hints: Комбинировать с Product Registry для ответа по версиям\napi:\n- protocol: REST\n- base_url: https://internal.vendor.example/agents/ai-copilot/v1\n- auth: OAuth2\n- rate_limit: 250/s\n- docs_url: https://wiki.vendor.example/agents/ai-copilot\nsla:\n{\"availability_percent\": 99.7, \"latency_p99_ms\": 1800, \"support_hours\": \"business_hours\"}\n",
+    "domain": "product_knowledge",
+    "sub_domain": "ai_assistant",
+    "capabilities": [
+      "semantic_doc_qa",
+      "rag_answering",
+      "embedding_search",
+      "source_attribution"
+    ],
+    "input_schema": {
+      "type": "object"
+    },
+    "output_schema": {
+      "type": "object"
+    },
+    "api": {
+      "protocol": "REST",
+      "base_url": "https://internal.vendor.example/agents/ai-copilot/v1",
+      "auth": "OAuth2",
+      "rate_limit": "250/s",
+      "docs_url": "https://wiki.vendor.example/agents/ai-copilot"
+    },
+    "mcp_server_uri": "mcp://vendor-agents/ai-copilot",
+    "owner_team": "knowledge-engineering",
+    "contact": "ai-copilot@vendor.example",
+    "sla": {
+      "availability_percent": 99.7,
+      "latency_p99_ms": 1800,
+      "support_hours": "business_hours"
+    },
+    "dependencies": [
+      "Documentation Graph API",
+      "Vector Search API"
+    ],
+    "composable": true,
+    "composition_hints": [
+      "Комбинировать с Product Registry для ответа по версиям"
+    ],
+    "tags": [
+      "ai",
+      "rag",
+      "assistant",
+      "documentation"
+    ],
+    "created_at": "2025-10-01T00:00:00Z",
+    "last_updated": "2026-03-01T00:00:00Z",
+    "usage_stats": {
+      "monthly_requests": 310000,
+      "active_consumers": 12
+    }
+  },
+  {
+    "id": "agent_incident_command",
+    "name": "Incident Command Agent",
+    "version": "2.0.0",
+    "status": "active",
+    "description": "Оркестрация инцидентов: сбор алертов, эскалация on-call, postmortem и RCA.\n\n[auto-expanded-details]\nagent_id: agent_incident_command\ndomain: platform/incident_management\ntags: incidents, oncall, postmortem, rca\ncapabilities: incident_intake, oncall_escalation, postmortem_builder, rca_tracking\ndependencies: Alerting API, Runbook API\ncomposition_hints: Связывать с Work Tracker Bridge для follow-up задач\napi:\n- protocol: REST\n- base_url: https://internal.vendor.example/agents/incident-command/v2\n- auth: OAuth2\n- rate_limit: 120/s\n- docs_url: https://wiki.vendor.example/agents/incident-command\nsla:\n{\"availability_percent\": 99.95, \"latency_p99_ms\": 500, \"support_hours\": \"24/7\"}\n",
+    "domain": "platform",
+    "sub_domain": "incident_management",
+    "capabilities": [
+      "incident_intake",
+      "oncall_escalation",
+      "postmortem_builder",
+      "rca_tracking"
+    ],
+    "input_schema": {
+      "type": "object"
+    },
+    "output_schema": {
+      "type": "object"
+    },
+    "api": {
+      "protocol": "REST",
+      "base_url": "https://internal.vendor.example/agents/incident-command/v2",
+      "auth": "OAuth2",
+      "rate_limit": "120/s",
+      "docs_url": "https://wiki.vendor.example/agents/incident-command"
+    },
+    "mcp_server_uri": "mcp://vendor-agents/incident-command",
+    "owner_team": "platform-engineering",
+    "contact": "incident@vendor.example",
+    "sla": {
+      "availability_percent": 99.95,
+      "latency_p99_ms": 500,
+      "support_hours": "24/7"
+    },
+    "dependencies": [
+      "Alerting API",
+      "Runbook API"
+    ],
+    "composable": true,
+    "composition_hints": [
+      "Связывать с Work Tracker Bridge для follow-up задач"
+    ],
+    "tags": [
+      "incidents",
+      "oncall",
+      "postmortem",
+      "rca"
+    ],
+    "created_at": "2025-07-10T00:00:00Z",
+    "last_updated": "2026-02-26T00:00:00Z",
+    "usage_stats": {
+      "monthly_requests": 195000,
+      "active_consumers": 17
+    }
+  },
+  {
+    "id": "agent_oss_license_guard",
+    "name": "OSS License Guard",
+    "version": "1.3.2",
+    "status": "active",
+    "description": "Проверка OSS-лицензий и политик совместимости для зависимостей продукта.\n\n[auto-expanded-details]\nagent_id: agent_oss_license_guard\ndomain: security_compliance/license_compliance\ntags: oss, license, compliance\ncapabilities: license_scan, license_policy_gate, third_party_notice_builder\ndependencies: Dependency Catalog API\ncomposition_hints: Запускать параллельно с Supply Chain Security Scanner\napi:\n- protocol: REST\n- base_url: https://internal.vendor.example/agents/license-guard/v1\n- auth: OAuth2\n- rate_limit: 80/s\n- docs_url: https://wiki.vendor.example/agents/license-guard\nsla:\n{\"availability_percent\": 99.8, \"latency_p99_ms\": 1600, \"support_hours\": \"business_hours\"}\n",
+    "domain": "security_compliance",
+    "sub_domain": "license_compliance",
+    "capabilities": [
+      "license_scan",
+      "license_policy_gate",
+      "third_party_notice_builder"
+    ],
+    "input_schema": {
+      "type": "object"
+    },
+    "output_schema": {
+      "type": "object"
+    },
+    "api": {
+      "protocol": "REST",
+      "base_url": "https://internal.vendor.example/agents/license-guard/v1",
+      "auth": "OAuth2",
+      "rate_limit": "80/s",
+      "docs_url": "https://wiki.vendor.example/agents/license-guard"
+    },
+    "mcp_server_uri": "mcp://vendor-agents/license-guard",
+    "owner_team": "product-security",
+    "contact": "license@vendor.example",
+    "sla": {
+      "availability_percent": 99.8,
+      "latency_p99_ms": 1600,
+      "support_hours": "business_hours"
+    },
+    "dependencies": [
+      "Dependency Catalog API"
+    ],
+    "composable": true,
+    "composition_hints": [
+      "Запускать параллельно с Supply Chain Security Scanner"
+    ],
+    "tags": [
+      "oss",
+      "license",
+      "compliance"
+    ],
+    "created_at": "2025-09-12T00:00:00Z",
+    "last_updated": "2026-02-21T00:00:00Z",
+    "usage_stats": {
+      "monthly_requests": 98000,
+      "active_consumers": 11
+    }
+  },
+  {
+    "id": "agent_internal_api_gateway",
+    "name": "Internal API Gateway Agent",
+    "version": "3.1.0",
+    "status": "active",
+    "description": "Внутренний gateway для сервисов: auth proxy, rate limiting, tenant routing.\n\n[auto-expanded-details]\nagent_id: agent_internal_api_gateway\ndomain: engineering_platform/api_gateway\ntags: gateway, auth, rate-limit, tenant\ncapabilities: api_gateway_policy, rate_limit_profile, auth_proxy, tenant_routing\ndependencies: Identity Provider API\ncomposition_hints: Использовать перед Bank Client Ticketing Hub для multi-tenant банка\napi:\n- protocol: REST\n- base_url: https://internal.vendor.example/agents/api-gateway/v3\n- auth: OAuth2\n- rate_limit: 900/s\n- docs_url: https://wiki.vendor.example/agents/api-gateway\nsla:\n{\"availability_percent\": 99.99, \"latency_p99_ms\": 90, \"support_hours\": \"24/7\"}\n",
+    "domain": "engineering_platform",
+    "sub_domain": "api_gateway",
+    "capabilities": [
+      "api_gateway_policy",
+      "rate_limit_profile",
+      "auth_proxy",
+      "tenant_routing"
+    ],
+    "input_schema": {
+      "type": "object"
+    },
+    "output_schema": {
+      "type": "object"
+    },
+    "api": {
+      "protocol": "REST",
+      "base_url": "https://internal.vendor.example/agents/api-gateway/v3",
+      "auth": "OAuth2",
+      "rate_limit": "900/s",
+      "docs_url": "https://wiki.vendor.example/agents/api-gateway"
+    },
+    "mcp_server_uri": "mcp://vendor-agents/api-gateway",
+    "owner_team": "developer-platform",
+    "contact": "gateway@vendor.example",
+    "sla": {
+      "availability_percent": 99.99,
+      "latency_p99_ms": 90,
+      "support_hours": "24/7"
+    },
+    "dependencies": [
+      "Identity Provider API"
+    ],
+    "composable": true,
+    "composition_hints": [
+      "Использовать перед Bank Client Ticketing Hub для multi-tenant банка"
+    ],
+    "tags": [
+      "gateway",
+      "auth",
+      "rate-limit",
+      "tenant"
+    ],
+    "created_at": "2024-11-14T00:00:00Z",
+    "last_updated": "2026-03-03T00:00:00Z",
+    "usage_stats": {
+      "monthly_requests": 7600000,
+      "active_consumers": 49
+    }
+  },
+  {
+    "id": "agent_config_flag_control",
+    "name": "Config & Feature Flag Control",
+    "version": "1.7.1",
+    "status": "active",
+    "description": "Управление конфигами и feature flags по средам/тенантам с аудитом изменений.\n\n[auto-expanded-details]\nagent_id: agent_config_flag_control\ndomain: engineering_platform/config_management\ntags: feature-flags, config, environments\ncapabilities: feature_flag_rollout, env_config_registry, config_audit_trail\ndependencies: Secrets Manager API\ncomposition_hints: Связать с release management для progressive rollout\napi:\n- protocol: REST\n- base_url: https://internal.vendor.example/agents/config-control/v1\n- auth: OAuth2\n- rate_limit: 500/s\n- docs_url: https://wiki.vendor.example/agents/config-control\nsla:\n{\"availability_percent\": 99.9, \"latency_p99_ms\": 220, \"support_hours\": \"24/7\"}\n",
+    "domain": "engineering_platform",
+    "sub_domain": "config_management",
+    "capabilities": [
+      "feature_flag_rollout",
+      "env_config_registry",
+      "config_audit_trail"
+    ],
+    "input_schema": {
+      "type": "object"
+    },
+    "output_schema": {
+      "type": "object"
+    },
+    "api": {
+      "protocol": "REST",
+      "base_url": "https://internal.vendor.example/agents/config-control/v1",
+      "auth": "OAuth2",
+      "rate_limit": "500/s",
+      "docs_url": "https://wiki.vendor.example/agents/config-control"
+    },
+    "mcp_server_uri": "mcp://vendor-agents/config-control",
+    "owner_team": "developer-platform",
+    "contact": "config@vendor.example",
+    "sla": {
+      "availability_percent": 99.9,
+      "latency_p99_ms": 220,
+      "support_hours": "24/7"
+    },
+    "dependencies": [
+      "Secrets Manager API"
+    ],
+    "composable": true,
+    "composition_hints": [
+      "Связать с release management для progressive rollout"
+    ],
+    "tags": [
+      "feature-flags",
+      "config",
+      "environments"
+    ],
+    "created_at": "2025-01-30T00:00:00Z",
+    "last_updated": "2026-02-25T00:00:00Z",
+    "usage_stats": {
+      "monthly_requests": 1430000,
+      "active_consumers": 29
+    }
+  },
+  {
+    "id": "agent_qa_automation_hub",
+    "name": "QA Automation Hub",
+    "version": "2.4.0",
+    "status": "active",
+    "description": "Оркестратор автотестов, quality gates, отчёты по покрытию и flaky-тестам.\n\n[auto-expanded-details]\nagent_id: agent_qa_automation_hub\ndomain: engineering_platform/qa\ntags: qa, tests, coverage, quality-gate\ncapabilities: test_plan_generation, test_execution_orchestration, coverage_gate, flaky_test_detection\ndependencies: CI/CD Orchestrator API, Test Analytics API\ncomposition_hints: Использовать в deployment gate перед prod rollout\napi:\n- protocol: REST\n- base_url: https://internal.vendor.example/agents/qa-hub/v2\n- auth: OAuth2\n- rate_limit: 260/s\n- docs_url: https://wiki.vendor.example/agents/qa-hub\nsla:\n{\"availability_percent\": 99.85, \"latency_p99_ms\": 800, \"support_hours\": \"business_hours\"}\n",
+    "domain": "engineering_platform",
+    "sub_domain": "qa",
+    "capabilities": [
+      "test_plan_generation",
+      "test_execution_orchestration",
+      "coverage_gate",
+      "flaky_test_detection"
+    ],
+    "input_schema": {
+      "type": "object"
+    },
+    "output_schema": {
+      "type": "object"
+    },
+    "api": {
+      "protocol": "REST",
+      "base_url": "https://internal.vendor.example/agents/qa-hub/v2",
+      "auth": "OAuth2",
+      "rate_limit": "260/s",
+      "docs_url": "https://wiki.vendor.example/agents/qa-hub"
+    },
+    "mcp_server_uri": "mcp://vendor-agents/qa-hub",
+    "owner_team": "quality-engineering",
+    "contact": "qa-platform@vendor.example",
+    "sla": {
+      "availability_percent": 99.85,
+      "latency_p99_ms": 800,
+      "support_hours": "business_hours"
+    },
+    "dependencies": [
+      "CI/CD Orchestrator API",
+      "Test Analytics API"
+    ],
+    "composable": true,
+    "composition_hints": [
+      "Использовать в deployment gate перед prod rollout"
+    ],
+    "tags": [
+      "qa",
+      "tests",
+      "coverage",
+      "quality-gate"
+    ],
+    "created_at": "2025-03-05T00:00:00Z",
+    "last_updated": "2026-02-27T00:00:00Z",
+    "usage_stats": {
+      "monthly_requests": 650000,
+      "active_consumers": 21
+    }
+  },
+  {
+    "id": "agent_release_governor",
+    "name": "Release Governor",
+    "version": "1.9.4",
+    "status": "active",
+    "description": "Управление релизами: release notes, approval workflow, календарь выкладок и changelog.\n\n[auto-expanded-details]\nagent_id: agent_release_governor\ndomain: client_delivery/releases\ntags: release, changelog, approval\ncapabilities: release_notes_builder, deploy_approval_workflow, changelog_compiler, release_calendar\ndependencies: Work Tracker (internal) API, CI/CD Orchestrator API\ncomposition_hints: Комбинировать с Contract Intelligence для client-specific release notes\napi:\n- protocol: REST\n- base_url: https://internal.vendor.example/agents/release-governor/v1\n- auth: OAuth2\n- rate_limit: 180/s\n- docs_url: https://wiki.vendor.example/agents/release-governor\nsla:\n{\"availability_percent\": 99.8, \"latency_p99_ms\": 1000, \"support_hours\": \"business_hours\"}\n",
+    "domain": "client_delivery",
+    "sub_domain": "releases",
+    "capabilities": [
+      "release_notes_builder",
+      "deploy_approval_workflow",
+      "changelog_compiler",
+      "release_calendar"
+    ],
+    "input_schema": {
+      "type": "object"
+    },
+    "output_schema": {
+      "type": "object"
+    },
+    "api": {
+      "protocol": "REST",
+      "base_url": "https://internal.vendor.example/agents/release-governor/v1",
+      "auth": "OAuth2",
+      "rate_limit": "180/s",
+      "docs_url": "https://wiki.vendor.example/agents/release-governor"
+    },
+    "mcp_server_uri": "mcp://vendor-agents/release-governor",
+    "owner_team": "release-management",
+    "contact": "release@vendor.example",
+    "sla": {
+      "availability_percent": 99.8,
+      "latency_p99_ms": 1000,
+      "support_hours": "business_hours"
+    },
+    "dependencies": [
+      "Work Tracker (internal) API",
+      "CI/CD Orchestrator API"
+    ],
+    "composable": true,
+    "composition_hints": [
+      "Комбинировать с Contract Intelligence для client-specific release notes"
+    ],
+    "tags": [
+      "release",
+      "changelog",
+      "approval"
+    ],
+    "created_at": "2025-04-22T00:00:00Z",
+    "last_updated": "2026-03-02T00:00:00Z",
+    "usage_stats": {
+      "monthly_requests": 132000,
+      "active_consumers": 15
+    }
+  },
+  {
+    "id": "agent_customer_onboarding_orchestrator",
+    "name": "Customer Onboarding Orchestrator",
+    "version": "1.0.5",
+    "status": "active",
+    "description": "Автоматизация онбординга банков-клиентов: provisioning tenant, demo env, checklist readiness.\n\n[auto-expanded-details]\nagent_id: agent_customer_onboarding_orchestrator\ndomain: client_delivery/onboarding\ntags: onboarding, tenant, provisioning\ncapabilities: tenant_provisioning, demo_environment_bootstrap, onboarding_checklist_tracking\ndependencies: Tenant Registry API, Environment Provisioning API\ncomposition_hints: Связывать с Bank Client Ticketing Hub для early-life support\napi:\n- protocol: REST\n- base_url: https://internal.vendor.example/agents/customer-onboarding/v1\n- auth: OAuth2\n- rate_limit: 40/s\n- docs_url: https://wiki.vendor.example/agents/customer-onboarding\nsla:\n{\"availability_percent\": 99.6, \"latency_p99_ms\": 2500, \"support_hours\": \"business_hours\"}\n",
+    "domain": "client_delivery",
+    "sub_domain": "onboarding",
+    "capabilities": [
+      "tenant_provisioning",
+      "demo_environment_bootstrap",
+      "onboarding_checklist_tracking"
+    ],
+    "input_schema": {
+      "type": "object"
+    },
+    "output_schema": {
+      "type": "object"
+    },
+    "api": {
+      "protocol": "REST",
+      "base_url": "https://internal.vendor.example/agents/customer-onboarding/v1",
+      "auth": "OAuth2",
+      "rate_limit": "40/s",
+      "docs_url": "https://wiki.vendor.example/agents/customer-onboarding"
+    },
+    "mcp_server_uri": "mcp://vendor-agents/customer-onboarding",
+    "owner_team": "client-success-platform",
+    "contact": "onboarding@vendor.example",
+    "sla": {
+      "availability_percent": 99.6,
+      "latency_p99_ms": 2500,
+      "support_hours": "business_hours"
+    },
+    "dependencies": [
+      "Tenant Registry API",
+      "Environment Provisioning API"
+    ],
+    "composable": true,
+    "composition_hints": [
+      "Связывать с Bank Client Ticketing Hub для early-life support"
+    ],
+    "tags": [
+      "onboarding",
+      "tenant",
+      "provisioning"
+    ],
+    "created_at": "2025-11-03T00:00:00Z",
+    "last_updated": "2026-03-04T00:00:00Z",
+    "usage_stats": {
+      "monthly_requests": 27000,
+      "active_consumers": 8
+    }
+  }
+]

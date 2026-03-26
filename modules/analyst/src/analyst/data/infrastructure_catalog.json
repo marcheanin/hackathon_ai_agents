@@ -1,0 +1,7 @@
+{
+  "client_delivery": ["K8s client-delivery-prod", "PostgreSQL 16", "Kafka", "Redis"],
+  "product_knowledge": ["K8s docs-prod", "OpenSearch cluster", "S3-compatible object store"],
+  "engineering_platform": ["K8s devplatform-prod", "Gitaly HA", "Runner fleet on K8s", "PostgreSQL 16"],
+  "security_compliance": ["K8s security-prod", "Trivy/Grype workers", "SBOM object store"],
+  "platform": ["K8s platform-prod", "VictoriaMetrics", "Loki", "PostgreSQL 16"]
+}
