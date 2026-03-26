@@ -14,13 +14,14 @@ logger = structlog.get_logger("mval.redteam")
 
 
 class RedTeamAgent:
-    """AI Red Teaming agent using Ollama via LangChain."""
+    """AI Red Teaming agent using Yandex Cloud LLM via LangChain."""
 
-    def __init__(self, ollama_base_url: str, model: str) -> None:
+    def __init__(self, base_url: str, api_key: str, model: str) -> None:
         self._llm = init_chat_model(
             model,
-            model_provider="ollama",
-            base_url=ollama_base_url,
+            model_provider="openai",
+            base_url=base_url,
+            api_key=api_key,
             temperature=0.2,
         )
 

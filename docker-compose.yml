@@ -1,49 +1,181 @@
 services:
+  # ── Инфраструктура ──────────────────────────────────────────────
+
+  postgres:
+    image: postgres:16-alpine
+    container_name: agents-postgres
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-secret}
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+      - ./scripts/init-db.sql:/docker-entrypoint-initdb.d/01-init-db.sql
+      - ./modules/mval/migrations:/docker-entrypoint-initdb.d/mval-migrations
+      - ./modules/analyst/migrations:/docker-entrypoint-initdb.d/analyst-migrations
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+    networks:
+      - agents-net
+
+  redis:
+    image: redis:7-alpine
+    container_name: agents-redis
+    ports:
+      - "6379:6379"
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+    networks:
+      - agents-net
+
   qdrant:
     image: qdrant/qdrant:latest
-    container_name: qdrant
+    container_name: agents-qdrant
     ports:
       - "6333:6333"
-      - "6334:6334"
     volumes:
       - qdrant_data:/qdrant/storage
-    environment:
-      QDRANT__SERVICE__HTTP_PORT: 6333
     healthcheck:
       test: ["CMD-SHELL", "bash -c 'echo > /dev/tcp/localhost/6333'"]
       interval: 10s
       timeout: 5s
       retries: 5
+    networks:
+      - agents-net
 
-  app:
+  # ── Приложения ──────────────────────────────────────────────────
+
+  orchestrator:
     build:
-      context: .
+      context: ./modules/orchestrator
       dockerfile: Dockerfile
-    container_name: architecture_agent
+    container_name: agents-orchestrator
     ports:
       - "8000:8000"
-    env_file:
-      - .env
     environment:
+      ANALYST_URL: http://analyst:8010
+      MVAL_URL: http://mval:8020
+      ARCHITECT_URL: http://architect:8030
+      IMPLEMENTOR_URL: http://implementor:8040
+    depends_on:
+      analyst:
+        condition: service_started
+      mval:
+        condition: service_started
+      architect:
+        condition: service_started
+      implementor:
+        condition: service_started
+    networks:
+      - agents-net
+
+  analyst:
+    build:
+      context: ./modules/analyst
+      dockerfile: Dockerfile
+    container_name: agents-analyst
+    ports:
+      - "8010:8010"
+    environment:
+      ANALYST_LLM_MODE: live
+      YANDEX_API_KEY: ${YANDEX_API_KEY}
+      YANDEX_FOLDER_ID: ${YANDEX_FOLDER_ID}
+      YANDEX_BASE_URL: ${YANDEX_BASE_URL:-https://llm.api.cloud.yandex.net/v1}
+      LLM_MODEL_NAME: ${LLM_MODEL_NAME:-deepseek-v32/latest}
+      MVAL_BASE_URL: http://mval:8020
+      DATABASE_URL: postgresql://postgres:${POSTGRES_PASSWORD:-secret}@postgres:5432/interview
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - agents-net
+
+  mval:
+    build:
+      context: ./modules/mval
+      dockerfile: Dockerfile
+    container_name: agents-mval
+    ports:
+      - "8020:8020"
+    environment:
+      POSTGRES_HOST: postgres
+      POSTGRES_PORT: 5432
+      POSTGRES_DB: mval
+      POSTGRES_USER: mval
+      POSTGRES_PASSWORD: mval_secret
+      REDIS_URL: redis://redis:6379/0
+      REDTEAM_URL: http://mval-redteam:8021
+      REDTEAM_TIMEOUT_SECONDS: 30
+      YANDEX_BASE_URL: ${YANDEX_BASE_URL:-https://llm.api.cloud.yandex.net/v1}
+      YANDEX_API_KEY: ${YANDEX_API_KEY}
+      LLM_MODEL: ${LLM_MODEL_NAME:-deepseek-v32/latest}
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    networks:
+      - agents-net
+
+  mval-redteam:
+    build:
+      context: ./modules/mval
+      dockerfile: Dockerfile.redteam
+    container_name: agents-mval-redteam
+    ports:
+      - "8021:8021"
+    environment:
+      YANDEX_BASE_URL: ${YANDEX_BASE_URL:-https://llm.api.cloud.yandex.net/v1}
+      YANDEX_API_KEY: ${YANDEX_API_KEY}
+      LLM_MODEL_NAME: ${LLM_MODEL_NAME:-deepseek-v32/latest}
+    networks:
+      - agents-net
+
+  architect:
+    build:
+      context: ./modules/architect
+      dockerfile: Dockerfile
+    container_name: agents-architect
+    ports:
+      - "8030:8030"
+    environment:
+      YANDEX_BASE_URL: ${YANDEX_BASE_URL:-https://llm.api.cloud.yandex.net/v1}
+      YANDEX_API_KEY: ${YANDEX_API_KEY}
+      YANDEX_FOLDER_ID: ${YANDEX_FOLDER_ID}
+      LLM_MODEL_NAME: ${LLM_MODEL_NAME:-deepseek-v32/latest}
+      EMBEDDING_BASE_URL: ${YANDEX_BASE_URL:-https://llm.api.cloud.yandex.net/v1}
+      EMBEDDING_API_KEY: ${YANDEX_API_KEY}
+      EMBEDDING_MODEL: ${EMBEDDING_MODEL:-text-search-doc/latest}
+      EMBEDDING_DIMENSIONS: ${EMBEDDING_DIMENSIONS:-256}
       QDRANT_URL: http://qdrant:6333
+      API_PORT: 8030
     depends_on:
       qdrant:
         condition: service_healthy
-    extra_hosts:
-      - "host.docker.internal:host-gateway"
-    volumes:
-      - ./scripts/patterns:/app/scripts/patterns:ro
+    networks:
+      - agents-net
 
-  ollama:
-    image: ollama/ollama:latest
-    container_name: ollama
+  implementor:
+    build:
+      context: ./modules/implementor
+      dockerfile: Dockerfile
+    container_name: agents-implementor
     ports:
-      - "11434:11434"
-    volumes:
-      - ollama_data:/root/.ollama
-    profiles:
-      - ollama
+      - "8040:8040"
+    networks:
+      - agents-net
 
 volumes:
+  pgdata:
   qdrant_data:
-  ollama_data:
+
+networks:
+  agents-net:
+    driver: bridge

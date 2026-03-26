@@ -1,31 +1,126 @@
-# ИИ Архитектор — модуль генерации архитектуры AI-агентов
+# Генератор Агентов — мульти-модульная система генерации AI-агентов
 
-Модуль **ИИ Архитектор** — часть системы V3 "Генератор Агентов". Принимает проверенный запрос от Модуля Валидации, проектирует архитектуру AI-агента через декомпозированный мульти-агентный пайплайн (LangGraph) и возвращает черновик архитектуры (Mermaid C4 + YAML + JSON).
+Система **Генератор Агентов (V3)** — полный пайплайн от пользовательского запроса до сгенерированной архитектуры AI-агента. Состоит из 5 модулей, координируемых оркестратором.
 
 ## Место в системе V3
 
 ```
-Модуль Валидации  ──► [ИИ Архитектор]  ──► Модуль Валидации
-                        │      ▲
-                        ▼      │
-                   БД 1: РАГ Архитектур (Qdrant)
-                   API LLM (Ollama / OpenAI-compatible)
+Клиент → Оркестратор → Аналитик → МВАЛ (REQUEST) → Архитектор → МВАЛ (ARCHITECTURE) → Реализация
+                          │            │                │              │
+                          ▼            ▼                ▼              ▼
+                     PostgreSQL    PostgreSQL        Qdrant         Redis
+                     Yandex LLM   Redis           Yandex LLM     Yandex LLM
+                                  Yandex LLM      Yandex Emb
 ```
 
-- **Вход**: проверенный запрос (`user_request` + опциональный `context`)
-- **Выход**: `GenerateResponse` — архитектура (компоненты, потоки данных, Mermaid C4, YAML) + валидация
+## Общий стек и зависимости
 
-## Стек
+### Инфраструктура (docker-compose)
+
+| Сервис | Образ | Назначение |
+|--------|-------|------------|
+| PostgreSQL | `postgres:16-alpine` | БД для Аналитика (`interview`) и МВАЛ (`mval`) |
+| Redis | `redis:7-alpine` | Policy Cache для МВАЛ |
+| Qdrant | `qdrant/qdrant:latest` | Векторная БД для RAG-паттернов Архитектора |
+
+### Используемые модели
+
+| Модель | Провайдер | Назначение |
+|--------|-----------|------------|
+| `deepseek-v32/latest` | Yandex Cloud LLM API | LLM для всех модулей (Аналитик, МВАЛ, Архитектор) |
+| `text-search-doc/latest` (256 dim) | Yandex Cloud Embeddings API | Эмбеддинги для RAG (Архитектор) |
+
+---
+
+## Модули
+
+### 1. Orchestrator — Оркестратор (порт 8000)
+
+Координирует полный пайплайн: Аналитик → МВАЛ → Архитектор → МВАЛ → Реализация. Поддерживает REST и WebSocket (многошаговый диалог с уточнениями).
 
 | Компонент | Технология |
-|-----------|-----------|
-| Runtime | Python 3.11+ |
-| Agent framework | LangGraph + LangChain |
-| LLM (demo) | qwen3.5:9b через Ollama |
-| Embeddings | nomic-embed-text (768 dim) |
-| Vector DB | Qdrant |
+|-----------|------------|
+| Runtime | Python 3.11 |
 | API | FastAPI |
-| LLM client | langchain-ollama (ChatOllama) |
+| HTTP-клиент | httpx |
+| WebSocket | websockets |
+| Валидация | Pydantic |
+
+**Внешние зависимости:** нет собственных — вызывает 4 модуля по HTTP.
+**Используемые модели:** нет (чистый оркестратор).
+
+---
+
+### 2. Analyst — ИИ Аналитик (порт 8010)
+
+Декомпозиция и конкретизация пользовательского запроса. Многошаговое интервью с уточняющими вопросами.
+
+| Компонент | Технология |
+|-----------|------------|
+| Runtime | Python 3.11 |
+| API | FastAPI |
+| Agent framework | LangGraph + LangChain |
+| DB-драйвер | asyncpg |
+| Логирование | structlog |
+| Валидация | Pydantic |
+| HTTP-клиент | httpx |
+
+**Внешние зависимости:** PostgreSQL (БД `interview`), Yandex Cloud LLM API, МВАЛ (по HTTP).
+**Используемые модели:** `deepseek-v32/latest` через Yandex Cloud OpenAI-compatible API.
+
+---
+
+### 3. МВАЛ — Модуль Валидации (порт 8020 + RedTeam sidecar 8021)
+
+Валидация артефактов между модулями. Включает RedTeam-агент для анализа угроз.
+
+| Компонент | Технология |
+|-----------|------------|
+| Runtime | Python 3.11 |
+| API | FastAPI |
+| Agent framework | LangChain |
+| DB-драйвер | asyncpg |
+| Кэш | redis (hiredis) |
+| Логирование | structlog |
+| Валидация | Pydantic |
+| HTTP-клиент | httpx |
+
+**Внешние зависимости:** PostgreSQL (БД `mval`), Redis, Yandex Cloud LLM API, RedTeam sidecar.
+**Используемые модели:** `deepseek-v32/latest` (основной + RedTeam агент).
+
+---
+
+### 4. Architect — ИИ Архитектор (порт 8030)
+
+Проектирует архитектуру AI-агента через декомпозированный мульти-агентный пайплайн (LangGraph) с RAG и retry-loop. Возвращает Mermaid C4 + YAML + JSON.
+
+| Компонент | Технология |
+|-----------|------------|
+| Runtime | Python 3.11 |
+| API | FastAPI |
+| Agent framework | LangGraph + LangChain |
+| Vector DB клиент | qdrant-client |
+| Валидация | Pydantic + pydantic-settings |
+| HTTP-клиент | httpx |
+| Парсинг паттернов | python-frontmatter, PyYAML |
+
+**Внешние зависимости:** Qdrant (векторная БД), Yandex Cloud LLM API, Yandex Cloud Embeddings API.
+**Используемые модели:** `deepseek-v32/latest` (LLM), `text-search-doc/latest` 256 dim (эмбеддинги).
+
+---
+
+### 5. Implementor — Модуль Реализации (порт 8040)
+
+Заглушка. В будущем — генерация кода по архитектуре из БД Шаблонов Кода.
+
+| Компонент | Технология |
+|-----------|------------|
+| Runtime | Python 3.11 |
+| API | FastAPI |
+| Валидация | Pydantic |
+
+**Внешние зависимости:** нет.
+**Используемые модели:** нет (stub).
 
 ## Архитектура пайплайна
 

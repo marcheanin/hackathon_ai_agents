@@ -18,8 +18,9 @@ def _get_agent() -> RedTeamAgent:
     global _agent
     if _agent is None:
         _agent = RedTeamAgent(
-            ollama_base_url=os.getenv("OLLAMA_BASE_URL", "http://localhost:11434"),
-            model=os.getenv("OLLAMA_MODEL", "llama3.2"),
+            base_url=os.getenv("YANDEX_BASE_URL", "https://llm.api.cloud.yandex.net/v1"),
+            api_key=os.getenv("YANDEX_API_KEY", ""),
+            model=os.getenv("LLM_MODEL_NAME", "deepseek-v32/latest"),
         )
     return _agent
 
