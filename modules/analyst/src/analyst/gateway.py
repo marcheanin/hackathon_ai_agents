@@ -28,7 +28,7 @@ def _log_analyst(session_id: str, message: str, result: dict) -> None:
         f.write("--- INPUT MESSAGE ---\n")
         f.write(f"{message}\n\n")
         f.write("--- OUTPUT ---\n")
-        f.write(f"{json.dumps(result, ensure_ascii=False, indent=2)[:5000]}\n\n")
+        f.write(f"{json.dumps(result, ensure_ascii=False, indent=2, default=str)[:5000]}\n\n")
 
 _session_manager = SessionManager()
 _orchestrator = AnalystOrchestrator()
