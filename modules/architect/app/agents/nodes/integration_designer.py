@@ -63,6 +63,10 @@ async def design_integrations_node(state: AgentState) -> dict:
     ]
 
     response = await llm.ainvoke(messages)
+
+    from app.llm.logger import log_llm_call
+    log_llm_call("architect", "integration_designer", messages, response)
+
     result = DataFlowList(**parse_llm_json(response))
 
     # Валидация: фильтруем потоки с несуществующими id

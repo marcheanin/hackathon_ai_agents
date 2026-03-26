@@ -1,5 +1,9 @@
 from __future__ import annotations
 
+import json
+import os
+from datetime import datetime, timezone
+from pathlib import Path
 from typing import Any
 
 import httpx
@@ -12,6 +16,19 @@ from analyst.observability import pipeline_log
 from analyst.session import SessionManager
 
 router = APIRouter()
+
+_LOG_DIR = Path(os.getenv("LLM_LOG_DIR", "/tmp/agent_logs"))
+_LOG_DIR.mkdir(parents=True, exist_ok=True)
+
+
+def _log_analyst(session_id: str, message: str, result: dict) -> None:
+    ts = datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M:%S UTC")
+    with open(_LOG_DIR / "analyst.log", "a", encoding="utf-8") as f:
+        f.write(f"\n{'='*80}\n[{ts}] Аналитик :: analyze (session={session_id})\n{'='*80}\n\n")
+        f.write("--- INPUT MESSAGE ---\n")
+        f.write(f"{message}\n\n")
+        f.write("--- OUTPUT ---\n")
+        f.write(f"{json.dumps(result, ensure_ascii=False, indent=2)[:5000]}\n\n")
 
 _session_manager = SessionManager()
 _orchestrator = AnalystOrchestrator()
@@ -62,6 +79,8 @@ async def analyze(body: AnalyzeRequest) -> dict[str, Any]:
     )
     session_state = _session_manager.get_or_create(body.session_id)
     result = await _orchestrator.process_message(session_state, body.message)
+
+    _log_analyst(body.session_id, body.message, result)
 
     if result.get("kind") == "final" and isinstance(result.get("concretized_request"), dict):
         pipeline_log(body.session_id, "gateway→mval", "validate_attempt", target=f"{MVAL_BASE_URL.rstrip('/')}{MVAL_VALIDATE_PATH}")

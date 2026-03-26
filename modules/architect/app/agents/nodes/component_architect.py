@@ -68,6 +68,10 @@ async def design_components_node(state: AgentState) -> dict:
     ]
 
     response = await llm.ainvoke(messages)
+
+    from app.llm.logger import log_llm_call
+    log_llm_call("architect", "component_architect", messages, response)
+
     result = ComponentList(**parse_llm_json(response))
 
     return {

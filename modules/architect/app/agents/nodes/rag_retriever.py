@@ -37,4 +37,12 @@ async def retrieve_patterns_node(state: AgentState) -> dict:
         for point in results.points
     ]
 
+    from app.llm.logger import log_llm_call
+    from langchain_core.messages import HumanMessage as _HM
+    log_llm_call(
+        "architect", "rag_retriever",
+        [_HM(content=f"RAG query: {state['user_request']}")],
+        type("R", (), {"content": "\n".join(f"- {p['pattern_name']} (score={p['score']:.3f})" for p in patterns)})(),
+    )
+
     return {"retrieved_patterns": patterns}

@@ -51,6 +51,10 @@ async def select_patterns_node(state: AgentState) -> dict:
     ]
 
     response = await llm.ainvoke(messages)
+
+    from app.llm.logger import log_llm_call
+    log_llm_call("architect", "pattern_selector", messages, response)
+
     result = PatternSelection(**parse_llm_json(response))
 
     return {

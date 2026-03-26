@@ -64,6 +64,9 @@ services:
       MVAL_URL: http://mval:8020
       ARCHITECT_URL: http://architect:8030
       IMPLEMENTOR_URL: http://implementor:8040
+      LLM_LOG_DIR: /tmp/agent_logs
+    volumes:
+      - agent_logs:/tmp/agent_logs
     depends_on:
       analyst:
         condition: service_started
@@ -91,6 +94,9 @@ services:
       LLM_MODEL_NAME: ${LLM_MODEL_NAME:-deepseek-v32/latest}
       MVAL_BASE_URL: http://mval:8020
       DATABASE_URL: postgresql://postgres:${POSTGRES_PASSWORD:-secret}@postgres:5432/interview
+      LLM_LOG_DIR: /tmp/agent_logs
+    volumes:
+      - agent_logs:/tmp/agent_logs
     depends_on:
       postgres:
         condition: service_healthy
@@ -116,6 +122,9 @@ services:
       YANDEX_BASE_URL: ${YANDEX_BASE_URL:-https://llm.api.cloud.yandex.net/v1}
       YANDEX_API_KEY: ${YANDEX_API_KEY}
       LLM_MODEL: ${LLM_MODEL_NAME:-deepseek-v32/latest}
+      LLM_LOG_DIR: /tmp/agent_logs
+    volumes:
+      - agent_logs:/tmp/agent_logs
     depends_on:
       postgres:
         condition: service_healthy
@@ -135,6 +144,9 @@ services:
       YANDEX_BASE_URL: ${YANDEX_BASE_URL:-https://llm.api.cloud.yandex.net/v1}
       YANDEX_API_KEY: ${YANDEX_API_KEY}
       LLM_MODEL_NAME: ${LLM_MODEL_NAME:-deepseek-v32/latest}
+      LLM_LOG_DIR: /tmp/agent_logs
+    volumes:
+      - agent_logs:/tmp/agent_logs
     networks:
       - agents-net
 
@@ -156,6 +168,9 @@ services:
       EMBEDDING_DIMENSIONS: ${EMBEDDING_DIMENSIONS:-256}
       QDRANT_URL: http://qdrant:6333
       API_PORT: 8030
+      LLM_LOG_DIR: /tmp/agent_logs
+    volumes:
+      - agent_logs:/tmp/agent_logs
     depends_on:
       qdrant:
         condition: service_healthy
@@ -175,6 +190,7 @@ services:
 volumes:
   pgdata:
   qdrant_data:
+  agent_logs:
 
 networks:
   agents-net:

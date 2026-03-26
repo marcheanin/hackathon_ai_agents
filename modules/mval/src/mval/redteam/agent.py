@@ -1,6 +1,9 @@
 from __future__ import annotations
 
 import json
+import os
+from datetime import datetime, timezone
+from pathlib import Path
 
 import structlog
 from langchain.chat_models import init_chat_model
@@ -11,6 +14,20 @@ from mval.domain.models import PolicyRule, ThreatFinding
 from mval.redteam.prompts import SYSTEM_PROMPT, USER_PROMPT_TEMPLATE
 
 logger = structlog.get_logger("mval.redteam")
+
+_LOG_DIR = Path(os.getenv("LLM_LOG_DIR", "/tmp/agent_logs"))
+_LOG_DIR.mkdir(parents=True, exist_ok=True)
+
+
+def _log_redteam(messages, response_content: str) -> None:
+    ts = datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M:%S UTC")
+    with open(_LOG_DIR / "mval_redteam.log", "a", encoding="utf-8") as f:
+        f.write(f"\n{'='*80}\n[{ts}] МВАЛ :: RedTeam Agent\n{'='*80}\n\n")
+        f.write("--- PROMPT ---\n")
+        for msg in messages:
+            f.write(f"[{msg.type}] {msg.content[:2000]}\n\n")
+        f.write("--- RESPONSE ---\n")
+        f.write(f"{response_content[:3000]}\n\n")
 
 
 class RedTeamAgent:
@@ -43,9 +60,14 @@ class RedTeamAgent:
 
         try:
             response = await self._llm.ainvoke(messages)
-            findings_raw = json.loads(response.content)
+            resp_text = response.content or ""
+            if not resp_text and hasattr(response, "additional_kwargs"):
+                resp_text = response.additional_kwargs.get("reasoning_content", "")
+            _log_redteam(messages, resp_text)
+            findings_raw = json.loads(resp_text)
         except json.JSONDecodeError:
-            logger.warning("redteam_invalid_json", response=str(response.content)[:500])
+            logger.warning("redteam_invalid_json", response=str(resp_text)[:500])
+            _log_redteam(messages, f"[JSON PARSE ERROR] {resp_text[:500]}")
             return []
         except Exception as exc:
             logger.error("redteam_llm_error", error=str(exc))

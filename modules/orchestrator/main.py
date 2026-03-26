@@ -5,13 +5,26 @@
 """
 from __future__ import annotations
 
+import json
 import os
 import uuid
+from datetime import datetime, timezone
+from pathlib import Path
 from typing import Any
 
 import httpx
 from fastapi import FastAPI, WebSocket, WebSocketDisconnect
 from pydantic import BaseModel, Field
+
+_LOG_DIR = Path(os.getenv("LLM_LOG_DIR", "/tmp/agent_logs"))
+_LOG_DIR.mkdir(parents=True, exist_ok=True)
+
+
+def _log_orchestrator(stage: str, direction: str, data: dict) -> None:
+    ts = datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M:%S UTC")
+    with open(_LOG_DIR / "orchestrator.log", "a", encoding="utf-8") as f:
+        f.write(f"\n{'='*80}\n[{ts}] Оркестратор :: {stage} ({direction})\n{'='*80}\n\n")
+        f.write(f"{json.dumps(data, ensure_ascii=False, indent=2)[:5000]}\n\n")
 
 ANALYST_URL = os.getenv("ANALYST_URL", "http://analyst:8010")
 MVAL_URL = os.getenv("MVAL_URL", "http://mval:8020")
@@ -53,6 +66,8 @@ async def run_pipeline(req: PipelineRequest) -> PipelineResponse:
         )
         analyst_resp.raise_for_status()
         analyst_data = analyst_resp.json()
+        _log_orchestrator("1_analyst", "request", {"session_id": req.session_id, "message": req.message})
+        _log_orchestrator("1_analyst", "response", analyst_data)
 
         kind = analyst_data.get("kind")
 
@@ -101,6 +116,7 @@ async def run_pipeline(req: PipelineRequest) -> PipelineResponse:
         )
         mval_req_resp.raise_for_status()
         mval_req_data = mval_req_resp.json()
+        _log_orchestrator("2_mval_request", "response", mval_req_data)
 
         if mval_req_data.get("verdict") == "FAIL":
             return PipelineResponse(
@@ -122,6 +138,7 @@ async def run_pipeline(req: PipelineRequest) -> PipelineResponse:
         )
         arch_resp.raise_for_status()
         arch_data = arch_resp.json()
+        _log_orchestrator("3_architect", "response", arch_data)
 
         if arch_data.get("status") != "success":
             return PipelineResponse(
@@ -144,6 +161,7 @@ async def run_pipeline(req: PipelineRequest) -> PipelineResponse:
         )
         mval_arch_resp.raise_for_status()
         mval_arch_data = mval_arch_resp.json()
+        _log_orchestrator("4_mval_architecture", "response", mval_arch_data)
 
         if mval_arch_data.get("verdict") == "FAIL":
             return PipelineResponse(
@@ -162,6 +180,7 @@ async def run_pipeline(req: PipelineRequest) -> PipelineResponse:
         )
         impl_resp.raise_for_status()
         impl_data = impl_resp.json()
+        _log_orchestrator("5_implementor", "response", impl_data)
 
         return PipelineResponse(
             stage="complete",
