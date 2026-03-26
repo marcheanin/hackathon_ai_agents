@@ -1,0 +1,5 @@
+{
+  "required": ["prometheus", "grafana", "elk"],
+  "sla_alerting": true
+}
+

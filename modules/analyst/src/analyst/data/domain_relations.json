@@ -1,0 +1,28 @@
+{
+  "relations": [
+    {
+      "from_domain": "client_delivery",
+      "to_domain": "engineering_platform",
+      "relation": "depends_on",
+      "rationale": "Портал поддержки зависит от git/cicd и управления релизами."
+    },
+    {
+      "from_domain": "client_delivery",
+      "to_domain": "security_compliance",
+      "relation": "depends_on",
+      "rationale": "Поставки банкам требуют CVE/SBOM и security gate."
+    },
+    {
+      "from_domain": "engineering_platform",
+      "to_domain": "product_knowledge",
+      "relation": "overlaps_with",
+      "rationale": "Реестры версий и документация используются в CI/CD проверках."
+    },
+    {
+      "from_domain": "security_compliance",
+      "to_domain": "platform",
+      "relation": "often_composed_with",
+      "rationale": "Security-сканирование требует observability и алертинга."
+    }
+  ]
+}

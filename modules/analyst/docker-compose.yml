@@ -1,0 +1,28 @@
+services:
+  analyst-postgres:
+    image: postgres:16-alpine
+    container_name: analyst-postgres
+    environment:
+      POSTGRES_DB: interview
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: password
+    ports:
+      - "5433:5432"
+    volumes:
+      - analyst-pgdata:/var/lib/postgresql/data
+      - ./migrations:/docker-entrypoint-initdb.d
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d interview"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+    networks:
+      - analyst-net
+
+volumes:
+  analyst-pgdata:
+
+networks:
+  analyst-net:
+    driver: bridge
+
