@@ -1,0 +1,40 @@
+C4Component
+    title C3: Component Diagram — ИИ Архитектор [Декомпозированный мульти-агент]
+
+    Container_Boundary(arch_agent, "ИИ Архитектор") {
+        Component(api_handler, "HTTP Handler", "FastAPI", "POST /api/v1/generate — принимает проверенный запрос от Модуля Валидации")
+        Component(graph_orchestrator, "Graph Orchestrator", "LangGraph StateGraph", "Управляет пайплайном из 6 узлов и retry-loop на уровне design_components")
+        Component(agent_state, "AgentState", "LangGraph TypedDict", "Хранит промежуточные результаты: patterns, components, flows, feedback_history, iteration_count")
+
+        Component(rag_retriever, "RAG Retriever Node", "LangChain + Qdrant Client", "Семантический поиск top-K паттернов в Vector DB. Выполняется ОДИН РАЗ")
+        Component(pattern_selector, "Pattern Selector Node", "LLM (qwen3.5:9b)", "Выбирает 2-3 наиболее подходящих паттерна из RAG-результатов. Выполняется ОДИН РАЗ")
+        Component(component_architect, "Component Architect Node", "LLM (qwen3.5:9b)", "Проектирует список компонентов/сервисов. RETRYABLE — при отклонении возвращается сюда с feedback")
+        Component(integration_designer, "Integration Designer Node", "LLM (qwen3.5:9b)", "Определяет потоки данных между компонентами. RETRYABLE — валидирует from_id/to_id")
+        Component(diagram_synthesizer, "Diagram Synthesizer", "Python (детерминированный)", "Генерирует Mermaid C4-диаграмму и YAML-спек программно. БЕЗ LLM — 100% корректный синтаксис")
+        Component(arch_validator, "Architecture Validator Node", "LLM (qwen3.5:9b)", "Оценка: completeness, correctness, applicability, feasibility. Порог: score >= 0.7")
+
+        Component(llm_client, "LLM Client", "langchain-openai", "OpenAI-compatible клиент. Demo: Ollama qwen3.5:9b")
+        Component(qdrant_client, "Qdrant Client", "qdrant-client (async)", "Cosine similarity search по коллекции arch_patterns (768 dim)")
+    }
+
+    System_Ext(validation_module, "Модуль Валидации", "Отправляет проверенный запрос; принимает черновик архитектуры")
+    SystemDb_Ext(qdrant_db, "БД 1: РАГ Архитектур", "Qdrant Vector DB — 7 архитектурных паттернов (microservices, event-driven, RAG, multi-agent и др.)")
+    System_Ext(llm_api, "API LLM (Ollama)", "qwen3.5:9b — 9.7B params, 256K ctx, Q4_K_M, OpenAI-compatible")
+
+    Rel(validation_module, api_handler, "Проверенный запрос", "HTTP POST /api/v1/generate")
+    Rel(api_handler, graph_orchestrator, "Инициализирует AgentState", "ainvoke(initial_state)")
+    Rel(graph_orchestrator, agent_state, "Читает / обновляет на каждом шаге")
+    Rel(graph_orchestrator, rag_retriever, "Шаг 1: retrieve_patterns (один раз)")
+    Rel(graph_orchestrator, pattern_selector, "Шаг 2: select_patterns (один раз)")
+    Rel(graph_orchestrator, component_architect, "Шаг 3: design_components (retryable)")
+    Rel(graph_orchestrator, integration_designer, "Шаг 4: design_integrations (retryable)")
+    Rel(graph_orchestrator, diagram_synthesizer, "Шаг 5: synthesize_diagram (детерминированный)")
+    Rel(graph_orchestrator, arch_validator, "Шаг 6: validate_architecture → approved | retry | max_retries")
+    Rel(rag_retriever, qdrant_client, "embed(user_request) + search(top-K=8)")
+    Rel(qdrant_client, qdrant_db, "Cosine similarity search", "HTTP :6333")
+    Rel(pattern_selector, llm_client, "with_structured_output(PatternSelection)")
+    Rel(component_architect, llm_client, "with_structured_output(ComponentList) + feedback")
+    Rel(integration_designer, llm_client, "with_structured_output(DataFlowList)")
+    Rel(arch_validator, llm_client, "with_structured_output(ValidationOutput)")
+    Rel(llm_client, llm_api, "Chat Completion (structured output)", "OpenAI REST API :11434/v1")
+    Rel(api_handler, validation_module, "Черновик: Mermaid + JSON + YAML", "HTTP Response GenerateResponse")
