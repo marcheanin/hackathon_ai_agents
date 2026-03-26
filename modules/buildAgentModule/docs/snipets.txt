@@ -1,0 +1,138 @@
+=== SNIPPET START ===
+SNIPPET_ID: base_agent_class
+TAG: agent, core, class
+DESCRIPTION:
+Базовый класс агента. Этот класс содержит минимальный интерфейс для всех агентов.
+Он нужен как основа, чтобы можно было наследовать специфичные агенты.
+CODE:
+class BaseAgent:
+    \"\"\" Базовый класс агента \"\"\"
+    def __init__(self, name: str, tools: dict):
+        self.name = name
+        self.tools = tools
+
+    def run(self, task: str):
+        raise NotImplementedError("Agent must implement run()")
+=== SNIPPET END ===
+
+=== SNIPPET START ===
+SNIPPET_ID: safe_file_write
+TAG: tools, filesystem
+DESCRIPTION:
+Инструмент для безопасной записи файла в sandbox репо.
+CODE:
+def safe_write_file(path: str, content: str):
+    \"\"\"Записывает content в path, защищает от выхода из repo\"\"\"
+    full_path = safe_path(path)
+    os.makedirs(os.path.dirname(full_path), exist_ok=True)
+    with open(full_path, "w", encoding="utf-8") as f:
+        f.write(content)
+    return f"Written {path}"
+=== SNIPPET END ===
+
+=== SNIPPET START ===
+SNIPPET_ID: safe_file_read
+TAG: tools, filesystem
+DESCRIPTION:
+Инструмент для безопасного чтения файла из репо.
+CODE:
+def safe_read_file(path: str) -> str:
+    \"\"\"Читает файл внутри repo, возвращает строку\"\"\"
+    full_path = safe_path(path)
+    if not os.path.exists(full_path):
+        return ""
+    with open(full_path, "r", encoding="utf-8") as f:
+        return f.read()
+=== SNIPPET END ===
+
+=== SNIPPET START ===
+SNIPPET_ID: rag_index_builder
+TAG: rag, retrieval, vectorstore
+DESCRIPTION:
+Скрипт для построения RAG‑индекса из текстов или документации.
+Он разбивает тексты на чанки, генерирует embeddings и сохраняет индекс.
+CODE:
+from langchain.embeddings import OpenAIEmbeddings
+from langchain.vectorstores import FAISS
+from langchain.text_splitter import RecursiveCharacterTextSplitter
+from langchain.schema import Document
+
+def build_rag_index(docs, persist_dir="./rag_index"):
+    \"\"\"Построить векторный индекс на основе списка строк docs\"\"\"
+    embeddings = OpenAIEmbeddings()
+    splitter = RecursiveCharacterTextSplitter(chunk_size=1000, chunk_overlap=200)
+    doc_objs = []
+    for text in docs:
+        chunks = splitter.split_text(text)
+        for chunk in chunks:
+            doc_objs.append(Document(page_content=chunk))
+    vect = FAISS.from_documents(doc_objs, embeddings)
+    vect.save_local(persist_dir)
+    return vect
+=== SNIPPET END ===
+
+=== SNIPPET START ===
+SNIPPET_ID: rag_search_tool
+TAG: rag, tool, retrieval
+DESCRIPTION:
+Инструмент для deepagents: принимает query и возвращает релевантные сниппеты из RAG‑индекса.
+CODE:
+def rag_search(query: str, top_k: int=5) -> str:
+    \"\"\"Поиск топ‑k релевантных контекстов по запросу query\"\"\"
+    try:
+        retriever = load_rag_retriever()
+    except Exception as e:
+        return \"RAG index not built yet.\"
+    docs = retriever.get_relevant_documents(query)
+    output = []
+    for d in docs[:top_k]:
+        output.append(d.page_content.strip())
+    return \"\\n---\\n\".join(output)
+=== SNIPPET END ===
+
+=== SNIPPET START ===
+SNIPPET_ID: json_parser_util
+TAG: util, json
+DESCRIPTION:
+Утилита для загрузки JSON‑конфигураций, например с архитектурой агентов.
+CODE:
+import json
+
+def load_json_config(path: str):
+    \"\"\"Читает JSON из файла и возвращает dict\"\"\"
+    with open(path, 'r', encoding='utf-8') as f:
+        return json.load(f)
+=== SNIPPET END ===
+
+=== SNIPPET START ===
+SNIPPET_ID: main_agent_entry
+TAG: executor, pipeline
+DESCRIPTION:
+Основной входной модуль агента, запускающий deepagent с заданным JSON‑входом.
+CODE:
+if __name__ == \"__main__\":
+    import argparse
+    parser = argparse.ArgumentParser()
+    parser.add_argument('--input', required=True)
+    args = parser.parse_args()
+    config = load_json_config(args.input)
+    run_agent(config)
+=== SNIPPET END ===
+
+=== SNIPPET START ===
+SNIPPET_ID: explanation_prompt
+TAG: prompt, guidance
+DESCRIPTION:
+Пример жесткого prompt‑контракта для RAG‑агента, чтобы он НЕ генерировал объяснения, а только БЕРАЛ контекст и КОД.
+CODE:
+PROMPT_TEMPLATE = \"\"\"
+You are a code generator agent that MUST use retrieved snippets.
+Never generate explanations or free text.
+For each request:
+1. If information is in retrieved snippets, use it.
+2. Output only final code or exact snippet insertion.
+3. Do not hallucinate.
+Example format:
+<filename>: <code>
+\"\"\"
+=== SNIPPET END ===

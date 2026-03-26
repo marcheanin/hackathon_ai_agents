@@ -1,0 +1,168 @@
+{
+  "status": "success",
+  "architecture": {
+    "title": "Architecture for: Нужен портал тикетов для банков-клиентов, до 100к обращений в месяц, с подтвержд",
+    "description": "Нужен портал тикетов для банков-клиентов, до 100к обращений в месяц, с подтверждением по SMS. SBOM и CVE, CVSS>=7. RPS 500, пик 2000, задержка до 3 сек. REST webhook. Со счёта на счёт интеграция. Автоотмена через 10 минут.",
+    "primary_pattern": "microservices",
+    "patterns_used": [
+      "microservices",
+      "event-driven-architecture",
+      "saga-pattern"
+    ],
+    "components": [
+      {
+        "id": "api_gateway",
+        "name": "API Gateway",
+        "type": "api_gateway",
+        "description": "Single entry point handling REST webhooks, rate limiting (RPS 500/2000), and routing to internal services.",
+        "technology": "FastAPI",
+        "dependencies": []
+      },
+      {
+        "id": "ticket_orchestrator",
+        "name": "Ticket Orchestrator",
+        "type": "orchestrator",
+        "description": "Central coordinator managing ticket lifecycle, SLA tracking, and delegating tasks to reused agents.",
+        "technology": "LangGraph",
+        "dependencies": [
+          "agent_bank_client_ticketing_hub",
+          "agent_supply_chain_security",
+          "queue"
+        ]
+      },
+      {
+        "id": "agent_bank_client_ticketing_hub",
+        "name": "Bank Client Ticketing Hub",
+        "type": "llm_agent",
+        "description": "Reused agent for ticket ingestion, SLA tracking, escalation workflows, and SMS confirmations.",
+        "technology": "Custom (Reused)",
+        "dependencies": [
+          "queue",
+          "memory_ticket_db"
+        ]
+      },
+      {
+        "id": "agent_supply_chain_security",
+        "name": "Supply Chain Security Scanner",
+        "type": "llm_agent",
+        "description": "Reused agent for SBOM validation, CVE scanning, and vulnerability assessment (CVSS>=7).",
+        "technology": "Custom (Reused)",
+        "dependencies": [
+          "queue"
+        ]
+      },
+      {
+        "id": "queue",
+        "name": "Event Queue",
+        "type": "queue",
+        "description": "Message broker for async processing of webhooks, SMS jobs, and security scans to handle peak loads.",
+        "technology": "Kafka",
+        "dependencies": []
+      },
+      {
+        "id": "memory_ticket_db",
+        "name": "Ticket Database",
+        "type": "database",
+        "description": "Persistent storage for tickets, user sessions, and transaction logs with 7-year retention.",
+        "technology": "PostgreSQL 16",
+        "dependencies": []
+      },
+      {
+        "id": "memory_cache",
+        "name": "Session Cache",
+        "type": "memory",
+        "description": "High-speed cache for session state and rate limiting checks to ensure low latency.",
+        "technology": "Redis",
+        "dependencies": []
+      },
+      {
+        "id": "tool_sms_gateway",
+        "name": "SMS Gateway",
+        "type": "tool",
+        "description": "External integration for sending and receiving SMS confirmations for ticket creation.",
+        "technology": "Twilio/SendGrid",
+        "dependencies": []
+      },
+      {
+        "id": "tool_payment_integration",
+        "name": "Payment Integration",
+        "type": "tool",
+        "description": "External integration for account-to-account transfers and handling auto-cancellation logic.",
+        "technology": "Plaid/Stripe",
+        "dependencies": []
+      },
+      {
+        "id": "monitoring_stack",
+        "name": "Monitoring Stack",
+        "type": "external",
+        "description": "Observability components for SLA alerting, metrics collection, and audit logging.",
+        "technology": "Prometheus/Grafana/ELK",
+        "dependencies": []
+      }
+    ],
+    "data_flows": [
+      {
+        "from_id": "api_gateway",
+        "to_id": "queue",
+        "label": "Incoming REST webhooks (ticket creation) with rate limiting",
+        "protocol": "HTTP"
+      },
+      {
+        "from_id": "api_gateway",
+        "to_id": "memory_cache",
+        "label": "Rate limiting checks and session state validation",
+        "protocol": "direct call"
+      },
+      {
+        "from_id": "queue",
+        "to_id": "agent_bank_client_ticketing_hub",
+        "label": "Async ticket ingestion, SLA tracking, and escalation workflow processing",
+        "protocol": "AMQP"
+      },
+      {
+        "from_id": "queue",
+        "to_id": "agent_supply_chain_security",
+        "label": "Dependency audit, SBOM validation, and vulnerability scan (CVSS>=7) for new tickets",
+        "protocol": "AMQP"
+      },
+      {
+        "from_id": "agent_bank_client_ticketing_hub",
+        "to_id": "tool_sms_gateway",
+        "label": "SMS confirmation request for ticket creation",
+        "protocol": "HTTP"
+      },
+      {
+        "from_id": "agent_bank_client_ticketing_hub",
+        "to_id": "memory_ticket_db",
+        "label": "Persist ticket data, user sessions, and transaction logs",
+        "protocol": "direct call"
+      },
+      {
+        "from_id": "agent_supply_chain_security",
+        "to_id": "memory_ticket_db",
+        "label": "Store SBOM, CVE, and vulnerability scan results",
+        "protocol": "direct call"
+      },
+      {
+        "from_id": "agent_bank_client_ticketing_hub",
+        "to_id": "tool_payment_integration",
+        "label": "Account-to-account transfer request and auto-cancellation trigger (10 min timeout)",
+        "protocol": "HTTP"
+      },
+      {
+        "from_id": "tool_payment_integration",
+        "to_id": "queue",
+        "label": "Payment status updates and cancellation confirmation events",
+        "protocol": "HTTP"
+      },
+      {
+        "from_id": "queue",
+        "to_id": "monitoring_stack",
+        "label": "Metrics, logs, and SLA alerting data",
+        "protocol": "direct call"
+      }
+    ]
+  },
+  "iterations": 1,
+  "request_id": "13c1a966-3ee8-4cd0-b60b-f6a03783809b"
+}
