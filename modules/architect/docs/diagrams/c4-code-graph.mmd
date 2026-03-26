@@ -1,0 +1,44 @@
+---
+title: "C4 Code Level: LangGraph Flow — ИИ Архитектор Retry Loop"
+---
+stateDiagram-v2
+    [*] --> retrieve_patterns: START
+
+    retrieve_patterns --> select_patterns: retrieved_patterns (top-K)
+
+    select_patterns --> design_components: selected_patterns + primary_pattern
+
+    state retry_zone {
+        design_components --> design_integrations: components[]
+        design_integrations --> synthesize_diagram: data_flows[]
+        synthesize_diagram --> validate_architecture: mermaid_diagram + yaml_spec
+    }
+
+    validate_architecture --> [*]: approved (score >= 0.7)
+    validate_architecture --> design_components: retry (iter < MAX_RETRIES)\nfeedback → feedback_history
+    validate_architecture --> [*]: max_retries (iter >= MAX_RETRIES)
+
+    note right of retrieve_patterns
+        RAG: Qdrant similarity search
+        Выполняется ОДИН РАЗ
+    end note
+
+    note right of select_patterns
+        LLM: PatternSelection schema
+        Выполняется ОДИН РАЗ
+    end note
+
+    note right of design_components
+        LLM: ComponentList schema
+        RETRYABLE с feedback_history
+    end note
+
+    note right of synthesize_diagram
+        Python: детерминированный
+        БЕЗ LLM
+    end note
+
+    note right of validate_architecture
+        LLM: ValidationOutput schema
+        4 критерия → score → approved/retry
+    end note

@@ -1,0 +1,2057 @@
+
+================================================================================
+[2026-03-26 11:08:35 UTC] architect :: rag_retriever
+================================================================================
+
+--- PROMPT ---
+[human] RAG query: Система CryptoTrader. Интеграция через REST webhook и WebSocket с Binance API. Лимит 5000 сделок/час. Уведомления через Telegram Bot API, таймаут 30 секунд. CVSS порог 7.0. Стратегия отката canary.
+
+--- RESPONSE ---
+- cqrs-event-sourcing (score=0.569)
+- microservices (score=0.557)
+- multi-agent-orchestration (score=0.544)
+- saga-pattern (score=0.529)
+- layered-architecture (score=0.523)
+- event-driven-architecture (score=0.512)
+- rag-agent (score=0.498)
+- hexagonal-architecture (score=0.489)
+
+
+================================================================================
+[2026-03-26 11:09:19 UTC] architect :: pattern_selector
+================================================================================
+
+--- PROMPT ---
+[system] You are a software architect. Select the 2-3 most relevant architectural patterns for the given user request from the provided list.
+
+You MUST respond with ONLY a valid JSON object, no other text:
+{
+  "selected_patterns": ["pattern_name_1", "pattern_name_2"],
+  "primary_pattern": "pattern_name_1",
+  "reasoning": "Brief explanation of why these patterns fit the request"
+}
+
+Use only pattern_name values from the provided list. Do not output anything except the JSON object.
+
+[human] User request: Система CryptoTrader. Интеграция через REST webhook и WebSocket с Binance API. Лимит 5000 сделок/час. Уведомления через Telegram Bot API, таймаут 30 секунд. CVSS порог 7.0. Стратегия отката canary.
+
+Available patterns:
+- cqrs-event-sourcing: CQRS + Event Sourcing (score: 0.57, tags: cqrs, event-sourcing, read-model, write-model)
+- microservices: Microservices Architecture (score: 0.56, tags: distributed, scalable, independent-deployment, api)
+- multi-agent-orchestration: Multi-Agent Orchestration Pattern (score: 0.54, tags: multi-agent, orchestration, langgraph, pipeline)
+- saga-pattern: Saga Pattern (Distributed Transactions) (score: 0.53, tags: saga, distributed, compensation, long-running)
+- layered-architecture: Layered (N-Tier) Architecture (score: 0.52, tags: layered, mvc, monolith, simple)
+- event-driven-architecture: Event-Driven Architecture (score: 0.51, tags: async, decoupled, scalable, real-time)
+- rag-agent: RAG-based AI Agent Pattern (score: 0.50, tags: rag, llm, vector-db, retrieval)
+- hexagonal-architecture: Hexagonal Architecture (Ports & Adapters) (score: 0.49, tags: hexagonal, ports-adapters, clean-architecture, testable)
+
+--- RESPONSE ---
+{
+  "selected_patterns": ["event-driven-architecture", "microservices"],
+  "primary_pattern": "event-driven-architecture",
+  "reasoning": "Event-Driven Architecture handles real-time WebSocket data and async Telegram notifications effectively, while Microservices supports scalability for 5000 trades/hour and canary rollback deployment."
+}
+
+
+================================================================================
+[2026-03-26 11:11:27 UTC] architect :: component_architect
+================================================================================
+
+--- PROMPT ---
+[system] You are a software architect. Design the list of components for an AI agent system.
+
+For each component provide:
+- id: unique snake_case identifier
+- name: human-readable name
+- type: one of [llm_agent, tool, memory, orchestrator, api_gateway, database, queue, external]
+- description: what this component does (1-2 sentences)
+- technology: specific technology (e.g., FastAPI, Qdrant, LangGraph) or null
+- dependencies: list of component ids this depends on (can be empty list)
+
+Return ONLY a JSON object: {"components": [...]}
+
+Design focused, minimal components that directly address the user request.
+
+[human] User request: Система CryptoTrader. Интеграция через REST webhook и WebSocket с Binance API. Лимит 5000 сделок/час. Уведомления через Telegram Bot API, таймаут 30 секунд. CVSS порог 7.0. Стратегия отката canary.
+
+=== ARCHITECT ROLE ===
+Ты — ИИ Архитектор. Используй данные от ИИ Аналитика.
+
+=== ANALYST MODULE OUTPUT (key data) ===
+Decision strategy: build_with_agent_reuse
+Domain: client_delivery/support_portal
+System name: CryptoTrader
+NFR: RPS=200, peak=1000, p99=50ms
+REUSE AGENT: Bank Client Ticketing Hub (id=agent_bank_client_ticketing_hub, coverage=50.0%)
+  Capabilities: bank_sla_tracking, client_ticket_ingest, escalation_workflow, webhook_ingestion
+  Hint: Вешать перед внутренним task tracker bridge
+  API: https://internal.vendor.example/agents/bank-ticketing/v2, MCP: mcp://vendor-agents/bank-ticketing, Auth: OAuth2
+REUSE AGENT: Supply Chain Security Scanner (id=agent_supply_chain_security, coverage=37.5%)
+  Capabilities: dependency_audit, sbom_validation, vulnerability_scan
+  Hint: Встраивать как обязательный gate перед публикацией релиза для банка
+  API: https://internal.vendor.example/agents/supply-chain/v2, MCP: mcp://vendor-agents/supply-chain, Auth: OAuth2
+Agent overlap: 7/8 capabilities covered, 1 to build, reuse=87.5%
+Team standards: TypeScript/NestJS (vendor-ts-standards-v2)
+Infrastructure: K8s client-delivery-prod, PostgreSQL 16, Kafka, Redis
+Policies: NDA & data residency with bank clients; Ticket data retention 7y (configurable); Bank communication only via approved channels
+Available APIs: Bank Service Desk Connector API, Client SLA & Escalation API, Release Notes Publishing API
+Monitoring: prometheus, grafana, elk (SLA alerting: True)
+Template: tmpl_bank_ticket_portal — Сервис приёма тикетов от банков: webhook/REST, нормализация SLA, эскалации, связка с внутренним трекером и Confluence.
+
+[auto-expanded-details]
+
+snippet_id: tmpl_bank_ticket_portal
+domain: client_delivery
+tags: client_ticket_ingest, bank_sla_tracking, webhook_ingestion, support_portal
+stack: typescript, nestjs, postgresql
+complexity: medium
+files_count: 16
+
+Template: tmpl_release_governance — Автоматизация release notes, approvals и changelog для клиентских релизов.
+
+[auto-expanded-details]
+
+snippet_id: tmpl_release_governance
+domain: client_delivery
+tags: release_notes_builder, deploy_approval_workflow, changelog_compiler, release_calendar
+stack: typescript, postgresql
+complexity: medium
+files_count: 15
+
+
+Primary pattern: event-driven-architecture
+Patterns reasoning: Event-Driven Architecture handles real-time WebSocket data and async Telegram notifications effectively, while Microservices supports scalability for 5000 trades/hour and canary rollback deployment.
+
+Reference patterns:
+Pattern: Microservices Architecture
+# Microservices Architecture
+
+## Description
+Microservices is an architectural style where an application is built as a collection of small, independently deployable services. Each service runs in its own process, communicates via lightweight mechanisms (HTTP/gRPC/messaging), and is independently deployable.
+
+## Key Components
+- **API Gateway**: Single entry point for all clients, routes requests to appropriate services
+- **Individual Services**: Each service owns its domain and data, exposes an API
+- **Service Registry/Discovery**: Tracks where services are located (Consul, Eureka)
+- **Message Broker**: Async communication between services (Kafka, RabbitMQ)
+- **Per-Service Databases**: Each service has its own database (polyglot persistence)
+
+## When to Apply for AI Agents
+- Building a mu
+
+---
+
+Pattern: Event-Driven Architecture
+# Event-Driven Architecture
+
+## Description
+Event-Driven Architecture (EDA) is a design paradigm where components communicate through the production, detection, and consumption of events. Components are decoupled — producers don't know about consumers.
+
+## Key Components
+- **Event Broker**: Central hub for routing events (Kafka, RabbitMQ, NATS)
+- **Event Producers**: Components that emit events when state changes
+- **Event Consumers**: Components that subscribe to and process events
+- **Event Store**: Persistent log of all events (for replay and audit)
+- **Dead Letter Queue**: Handles failed event processing
+
+## When to Apply for AI Agents
+- AI pipeline where each stage processes events independently
+- Agent produces results as events → downstream agents consume them
+- Need full audit trai
+
+--- RESPONSE ---
+{
+  "components": [
+    {
+      "id": "api_gateway",
+      "name": "API Gateway",
+      "type": "api_gateway",
+      "description": "Single entry point handling REST webhooks from Binance, routing requests to internal services, and managing authentication/rate limiting.",
+      "technology": "NestJS",
+      "dependencies": []
+    },
+    {
+      "id": "binance_websocket_client",
+      "name": "Binance WebSocket Client",
+      "type": "tool",
+      "description": "Maintains real-time WebSocket connection to Binance API for streaming market data and trade execution events.",
+      "technology": null,
+      "dependencies": []
+    },
+    {
+      "id": "trade_orchestrator",
+      "name": "Trade Orchestrator",
+      "type": "orchestrator",
+      "description": "Core LLM agent that processes market data, executes trading strategies, and coordinates trade flow while enforcing the 5000 trades/hour limit.",
+      "technology": "LangGraph",
+      "dependencies": ["binance_websocket_client", "trade_limiter", "trade_memory", "telegram_notifier"]
+    },
+    {
+      "id": "trade_limiter",
+      "name": "Trade Rate Limiter",
+      "type": "tool",
+      "description": "Enforces the 5000 trades per hour limit by tracking and throttling trade execution requests.",
+      "technology": "Redis",
+      "dependencies": []
+    },
+    {
+      "id": "telegram_notifier",
+      "name": "Telegram Notifier",
+      "type": "tool",
+      "description": "Sends trade alerts and system notifications via Telegram Bot API with a 30-second timeout.",
+      "technology": null,
+      "dependencies": []
+    },
+    {
+      "id": "security_scanner",
+      "name": "Security Scanner Agent",
+      "type": "external",
+      "description": "Reused external agent that scans for vulnerabilities, enforcing CVSS 7.0 threshold before trade execution or deployment.",
+      "technology": null,
+      "dependencies": []
+    },
+    {
+      "id": "trade_memory",
+      "name": "Trade Memory",
+      "type": "memory",
+      "description": "Stores trading history, market state, and agent context for short-term decision-making and audit.",
+      "technology": "Redis",
+      "dependencies": []
+    },
+    {
+      "id": "trade_database",
+      "name": "Trade Database",
+      "type": "database",
+      "description": "Persistent storage for trade records, user configurations, and historical data.",
+      "technology": "PostgreSQL 16",
+      "dependencies": []
+    },
+    {
+      "id": "event_broker",
+      "name": "Event Broker",
+      "type": "queue",
+      "description": "Handles asynchronous event flow between components (e.g., trade signals, notifications) using a message queue.",
+      "technology": "Kafka",
+      "dependencies": []
+    },
+    {
+      "id": "canary_deployment_manager",
+      "name": "Canary Deployment Manager",
+      "type": "tool",
+      "description": "Manages canary rollback strategy for deploying new trading strategies or system updates with gradual traffic shift and automatic rollback on fa
+
+
+================================================================================
+[2026-03-26 11:15:10 UTC] architect :: integration_designer
+================================================================================
+
+--- PROMPT ---
+[system] You are a software architect. Define the data flows between the given components.
+
+For each data flow:
+- from_id: source component id (must exist in the components list)
+- to_id: target component id (must exist in the components list)
+- label: brief description of what data flows (e.g., "HTTP POST /generate", "query vector + top-K results")
+- protocol: HTTP, gRPC, AMQP, WebSocket, direct call, or null
+
+Return ONLY a JSON object: {"data_flows": [...]}
+
+Rules:
+- Use only component ids from the provided list
+- Cover all major interactions
+- Avoid redundant flows
+
+[human] User request: Система CryptoTrader. Интеграция через REST webhook и WebSocket с Binance API. Лимит 5000 сделок/час. Уведомления через Telegram Bot API, таймаут 30 секунд. CVSS порог 7.0. Стратегия отката canary.
+
+=== ARCHITECT ROLE ===
+Ты — ИИ Архитектор. Используй данные от ИИ Аналитика.
+
+=== ANALYST MODULE OUTPUT (key data) ===
+Decision strategy: build_with_agent_reuse
+Domain: client_delivery/support_portal
+System name: CryptoTrader
+NFR: RPS=200, peak=1000, p99=50ms
+REUSE AGENT: Bank Client Ticketing Hub (id=agent_bank_client_ticketing_hub, coverage=50.0%)
+  Capabilities: bank_sla_tracking, client_ticket_ingest, escalation_workflow, webhook_ingestion
+  Hint: Вешать перед внутренним task tracker bridge
+  API: https://internal.vendor.example/agents/bank-ticketing/v2, MCP: mcp://vendor-agents/bank-ticketing, Auth: OAuth2
+REUSE AGENT: Supply Chain Security Scanner (id=agent_supply_chain_security, coverage=37.5%)
+  Capabilities: dependency_audit, sbom_validation, vulnerability_scan
+  Hint: Встраивать как обязательный gate перед публикацией релиза для банка
+  API: https://internal.vendor.example/agents/supply-chain/v2, MCP: mcp://vendor-agents/supply-chain, Auth: OAuth2
+Agent overlap: 7/8 capabilities covered, 1 to build, reuse=87.5%
+Team standards: TypeScript/NestJS (vendor-ts-standards-v2)
+Infrastructure: K8s client-delivery-prod, PostgreSQL 16, Kafka, Redis
+Policies: NDA & data residency with bank clients; Ticket data retention 7y (configurable); Bank communication only via approved channels
+Available APIs: Bank Service Desk Connector API, Client SLA & Escalation API, Release Notes Publishing API
+Monitoring: prometheus, grafana, elk (SLA alerting: True)
+Template: tmpl_bank_ticket_portal — Сервис приёма тикетов от банков: webhook/REST, нормализация SLA, эскалации, связка с внутренним трекером и Confluence.
+
+[auto-expanded-details]
+
+snippet_id: tmpl_bank_ticket_portal
+domain: client_delivery
+tags: client_ticket_ingest, bank_sla_tracking, webhook_ingestion, support_portal
+stack: typescript, nestjs, postgresql
+complexity: medium
+files_count: 16
+
+Template: tmpl_release_governance — Автоматизация release notes, approvals и changelog для клиентских релизов.
+
+[auto-expanded-details]
+
+snippet_id: tmpl_release_governance
+domain: client_delivery
+tags: release_notes_builder, deploy_approval_workflow, changelog_compiler, release_calendar
+stack: typescript, postgresql
+complexity: medium
+files_count: 15
+
+
+Primary pattern: event-driven-architecture
+
+Components:
+- api_gateway (api_gateway): API Gateway — Single entry point handling REST webhooks from Binance, routing requests to internal services, and managing authentication/rate limiting.
+- binance_websocket_client (tool): Binance WebSocket Client — Maintains real-time WebSocket connection to Binance API for streaming market data and trade execution events.
+- trade_orchestrator (orchestrator): Trade Orchestrator — Core LLM agent that processes market data, executes trading strategies, and coordinates trade flow while enforcing the 5000 trades/hour limit.
+- trade_limiter (tool): Trade Rate Limiter — Enforces the 5000 trades per hour limit by tracking and throttling trade execution requests.
+- telegram_notifier (tool): Telegram Notifier — Sends trade alerts and system notifications via Telegram Bot API with a 30-second timeout.
+- security_scanner (external): Security Scanner Agent — Reused external agent that scans for vulnerabilities, enforcing CVSS 7.0 threshold before trade execution or deployment.
+- trade_memory (memory): Trade Memory — Stores trading history, market state, and agent context for short-term decision-making and audit.
+- trade_database (database): Trade Database — Persistent storage for trade records, user configurations, and historical data.
+- event_broker (queue): Event Broker — Handles asynchronous event flow between components (e.g., trade signals, notifications) using a message queue.
+- canary_deployment_manager (tool): Canary Deployment Manager — Manages canary rollback strategy for deploying new trading strategies or system updates with gradual traffic shift and automatic rollback on failure.
+
+--- RESPONSE ---
+```json
+{
+  "data_flows": [
+    {
+      "from_id": "api_gateway",
+      "to_id": "event_broker",
+      "label": "Binance webhook events",
+      "protocol": "HTTP"
+    },
+    {
+      "from_id": "binance_websocket_client",
+      "to_id": "event_broker",
+      "label": "Real-time market data stream",
+      "protocol": "WebSocket"
+    },
+    {
+      "from_id": "event_broker",
+      "to_id": "trade_orchestrator",
+      "label": "Market data events",
+      "protocol": null
+    },
+    {
+      "from_id": "trade_orchestrator",
+      "to_id": "trade_limiter",
+      "label": "Trade execution request with count check",
+      "protocol": "direct call"
+    },
+    {
+      "from_id": "trade_limiter",
+      "to_id": "trade_orchestrator",
+      "label": "Approval/rejection with remaining quota",
+      "protocol": "direct call"
+    },
+    {
+      "from_id": "trade_orchestrator",
+      "to_id": "trade_memory",
+      "label": "Trading context and market state",
+      "protocol": "direct call"
+    },
+    {
+      "from_id": "trade_memory",
+      "to_id": "trade_orchestrator",
+      "label": "Historical patterns and agent context",
+      "protocol": "direct call"
+    },
+    {
+      "from_id": "trade_orchestrator",
+      "to_id": "trade_database",
+      "label": "Trade records and configurations",
+      "protocol": null
+    },
+    {
+      "from_id": "trade_database",
+      "to_id": "trade_orchestrator",
+      "label": "Historical trade data and user settings",
+      "protocol": null
+    },
+    {
+      "from_id": "trade_orchestrator",
+      "to_id": "event_broker",
+      "label": "Trade execution signals",
+      "protocol": null
+    },
+    {
+      "from_id": "event_broker",
+      "to_id": "telegram_notifier",
+      "label": "Trade alerts and system notifications",
+      "protocol": null
+    },
+    {
+      "from_id": "telegram_notifier",
+      "to_id": "trade_orchestrator",
+      "label": "Notification delivery status",
+      "protocol": "direct call"
+    },
+    {
+      "from_id": "canary_deployment_manager",
+      "to_id": "trade_orchestrator",
+      "label": "Strategy update/rollback commands",
+      "protocol": "direct call"
+    },
+    {
+      "from_id": "trade_orchestrator",
+      "to_id": "canary_deployment_manager",
+      "label": "Strategy performance metrics",
+      "protocol": "direct call"
+    },
+    {
+      "from_id": "canary_deployment_manager",
+      "to_id": "security_scanner",
+      "label": "Vulnerability scan request for new strategy",
+      "protocol": "HTTP"
+    },
+    {
+      "from_id": "security_scanner",
+      "to_id": "canary_deployment_manager",
+      "label": "CVSS scan results with 7.0 threshold check",
+      "protocol": "HTTP"
+    },
+    {
+      "from_id": "trade_orchestrator",
+      "to_id": "security_scanner",
+      "label": "Pre-trade security validation request",
+      "protocol": "HTTP"
+    },
+    {
+      "from_id": "security_scanner",
+      "to_id": "trade_orchestrator",
+      "label": "Security clearance/block decision",
+      "protocol": 
+
+
+================================================================================
+[2026-03-26 11:16:25 UTC] architect :: arch_validator
+================================================================================
+
+--- PROMPT ---
+[system] You are a senior software architect reviewing an architecture draft for an AI agent system.
+
+Evaluate the architecture on 4 criteria (0.0 to 1.0 each):
+1. completeness: Are all necessary components present for the use case?
+2. correctness: Are architectural patterns applied correctly?
+3. applicability: Does this architecture actually solve the user's request?
+4. feasibility: Is this technically feasible to implement?
+
+Return ONLY a JSON object with scores, feedback, and issues list.
+Be specific in feedback — mention exact component names or flow issues.
+issues list should be empty if approved.
+
+[human] User request: Система CryptoTrader. Интеграция через REST webhook и WebSocket с Binance API. Лимит 5000 сделок/час. Уведомления через Telegram Bot API, таймаут 30 секунд. CVSS порог 7.0. Стратегия отката canary.
+
+Primary pattern: event-driven-architecture
+Patterns used: event-driven-architecture, microservices
+
+Components (10):
+- api_gateway (api_gateway): API Gateway — Single entry point handling REST webhooks from Binance, routing requests to internal services, and managing authentication/rate limiting. [tech: NestJS]
+- binance_websocket_client (tool): Binance WebSocket Client — Maintains real-time WebSocket connection to Binance API for streaming market data and trade execution events.
+- trade_orchestrator (orchestrator): Trade Orchestrator — Core LLM agent that processes market data, executes trading strategies, and coordinates trade flow while enforcing the 5000 trades/hour limit. [tech: LangGraph]
+- trade_limiter (tool): Trade Rate Limiter — Enforces the 5000 trades per hour limit by tracking and throttling trade execution requests. [tech: Redis]
+- telegram_notifier (tool): Telegram Notifier — Sends trade alerts and system notifications via Telegram Bot API with a 30-second timeout.
+- security_scanner (external): Security Scanner Agent — Reused external agent that scans for vulnerabilities, enforcing CVSS 7.0 threshold before trade execution or deployment.
+- trade_memory (memory): Trade Memory — Stores trading history, market state, and agent context for short-term decision-making and audit. [tech: Redis]
+- trade_database (database): Trade Database — Persistent storage for trade records, user configurations, and historical data. [tech: PostgreSQL 16]
+- event_broker (queue): Event Broker — Handles asynchronous event flow between components (e.g., trade signals, notifications) using a message queue. [tech: Kafka]
+- canary_deployment_manager (tool): Canary Deployment Manager — Manages canary rollback strategy for deploying new trading strategies or system updates with gradual traffic shift and automatic rollback on failure.
+
+Data flows (19):
+- api_gateway → event_broker: Binance webhook events [HTTP]
+- binance_websocket_client → event_broker: Real-time market data stream [WebSocket]
+- event_broker → trade_orchestrator: Market data events
+- trade_orchestrator → trade_limiter: Trade execution request with count check [direct call]
+- trade_limiter → trade_orchestrator: Approval/rejection with remaining quota [direct call]
+- trade_orchestrator → trade_memory: Trading context and market state [direct call]
+- trade_memory → trade_orchestrator: Historical patterns and agent context [direct call]
+- trade_orchestrator → trade_database: Trade records and configurations
+- trade_database → trade_orchestrator: Historical trade data and user settings
+- trade_orchestrator → event_broker: Trade execution signals
+- event_broker → telegram_notifier: Trade alerts and system notifications
+- telegram_notifier → trade_orchestrator: Notification delivery status [direct call]
+- canary_deployment_manager → trade_orchestrator: Strategy update/rollback commands [direct call]
+- trade_orchestrator → canary_deployment_manager: Strategy performance metrics [direct call]
+- canary_deployment_manager → security_scanner: Vulnerability scan request for new strategy [HTTP]
+- security_scanner → canary_deployment_manager: CVSS scan results with 7.0 threshold check [HTTP]
+- trade_orchestrator → security_scanner: Pre-trade security validation request [HTTP]
+- security_scanner → trade_orchestrator: Security clearance/block decision [HTTP]
+- api_gateway → canary_deployment_manager: Deployment management commands [HTTP]
+
+--- RESPONSE ---
+```json
+{
+  "scores": {
+    "completeness": 0.8,
+    "correctness": 0.7,
+    "applicability": 0.9,
+    "feasibility": 0.8
+  },
+  "feedback": "The architecture covers most functional requirements but has significant pattern violations and missing operational components. The event-driven pattern is inconsistently applied with numerous direct calls between components instead of using the event broker. Critical missing components include: monitoring/alerting system, configuration management, and error handling mechanisms. The security scanner integration lacks clarity on when scans trigger (pre-trade vs deployment). The trade limiter should be integrated with the API gateway for comprehensive rate limiting.",
+  "issues": [
+    "Pattern violation: Multiple direct calls between components (trade_orchestrator ↔ trade_limiter, trade_memory, telegram_notifier, canary_deployment_manager) break event-driven principles",
+    "Missing component: No monitoring/observability system for tracking 5000 trades/hour limit, system health, or CVSS violations",
+    "Missing component: No configuration management for trading strategies, API keys, or Telegram bot tokens",
+    "Missing component: No error handling or dead letter queue for failed events in event_broker",
+    "Architectural flaw: trade_limiter should be positioned before trade_orchestrator to reject requests early",
+    "Security gap: No authentication/authorization between internal components (e.g., trade_orchestrator to trade_database)",
+    "Operational gap: No component for handling Binance API failures or WebSocket reconnection logic",
+    "Data flow issue: telegram_notifier → trade_orchestrator direct call for delivery status creates tight coupling",
+    "Clarity issue: Unclear how security_scanner integrates timing-wise - blocks every trade or only new strategies?",
+    "Scalability concern: trade_orchestrator as single LLM agent may bottleneck at 5000 trades/hour"
+  ]
+}
+```
+
+
+================================================================================
+[2026-03-26 11:19:20 UTC] architect :: rag_retriever
+================================================================================
+
+--- PROMPT ---
+[human] RAG query: Обращения через gRPC от процессингового центра. Лимит 50000 транзакций/минуту. Эскалация через 2 минуты с блокировкой карты. Стратегия отката blue-green. CVSS 9.0.
+
+--- RESPONSE ---
+- saga-pattern (score=0.556)
+- cqrs-event-sourcing (score=0.554)
+- multi-agent-orchestration (score=0.527)
+- microservices (score=0.503)
+- hexagonal-architecture (score=0.478)
+- event-driven-architecture (score=0.460)
+- layered-architecture (score=0.432)
+- rag-agent (score=0.427)
+
+
+================================================================================
+[2026-03-26 11:20:15 UTC] architect :: pattern_selector
+================================================================================
+
+--- PROMPT ---
+[system] You are a software architect. Select the 2-3 most relevant architectural patterns for the given user request from the provided list.
+
+You MUST respond with ONLY a valid JSON object, no other text:
+{
+  "selected_patterns": ["pattern_name_1", "pattern_name_2"],
+  "primary_pattern": "pattern_name_1",
+  "reasoning": "Brief explanation of why these patterns fit the request"
+}
+
+Use only pattern_name values from the provided list. Do not output anything except the JSON object.
+
+[human] User request: Обращения через gRPC от процессингового центра. Лимит 50000 транзакций/минуту. Эскалация через 2 минуты с блокировкой карты. Стратегия отката blue-green. CVSS 9.0.
+
+Available patterns:
+- saga-pattern: Saga Pattern (Distributed Transactions) (score: 0.56, tags: saga, distributed, compensation, long-running)
+- cqrs-event-sourcing: CQRS + Event Sourcing (score: 0.55, tags: cqrs, event-sourcing, read-model, write-model)
+- multi-agent-orchestration: Multi-Agent Orchestration Pattern (score: 0.53, tags: multi-agent, orchestration, langgraph, pipeline)
+- microservices: Microservices Architecture (score: 0.50, tags: distributed, scalable, independent-deployment, api)
+- hexagonal-architecture: Hexagonal Architecture (Ports & Adapters) (score: 0.48, tags: hexagonal, ports-adapters, clean-architecture, testable)
+- event-driven-architecture: Event-Driven Architecture (score: 0.46, tags: async, decoupled, scalable, real-time)
+- layered-architecture: Layered (N-Tier) Architecture (score: 0.43, tags: layered, mvc, monolith, simple)
+- rag-agent: RAG-based AI Agent Pattern (score: 0.43, tags: rag, llm, vector-db, retrieval)
+
+--- RESPONSE ---
+{
+  "selected_patterns": ["saga-pattern", "microservices"],
+  "primary_pattern": "saga-pattern",
+  "reasoning": "Saga pattern handles distributed transactions and compensation actions like card blocking after escalation. Microservices supports high throughput (50k transactions/min) and blue-green deployment."
+}
+
+
+================================================================================
+[2026-03-26 11:23:41 UTC] architect :: component_architect
+================================================================================
+
+--- PROMPT ---
+[system] You are a software architect. Design the list of components for an AI agent system.
+
+For each component provide:
+- id: unique snake_case identifier
+- name: human-readable name
+- type: one of [llm_agent, tool, memory, orchestrator, api_gateway, database, queue, external]
+- description: what this component does (1-2 sentences)
+- technology: specific technology (e.g., FastAPI, Qdrant, LangGraph) or null
+- dependencies: list of component ids this depends on (can be empty list)
+
+Return ONLY a JSON object: {"components": [...]}
+
+Design focused, minimal components that directly address the user request.
+
+[human] User request: Обращения через gRPC от процессингового центра. Лимит 50000 транзакций/минуту. Эскалация через 2 минуты с блокировкой карты. Стратегия отката blue-green. CVSS 9.0.
+
+=== ARCHITECT ROLE ===
+Ты — ИИ Архитектор. Используй данные от ИИ Аналитика.
+
+=== ANALYST MODULE OUTPUT (key data) ===
+Decision strategy: build_with_agent_reuse
+Domain: client_delivery/support_portal
+System name: FraudDetector для обнаружения мошенничества в реальном времени
+NFR: RPS=5000, peak=20000, p99=30ms
+REUSE AGENT: Bank Client Ticketing Hub (id=agent_bank_client_ticketing_hub, coverage=55.55555555555556%)
+  Capabilities: bank_sla_tracking, client_ticket_ingest, escalation_workflow, sms_confirm, sms_sending
+  Hint: Вешать перед внутренним task tracker bridge
+  API: https://internal.vendor.example/agents/bank-ticketing/v2, MCP: mcp://vendor-agents/bank-ticketing, Auth: OAuth2
+REUSE AGENT: Supply Chain Security Scanner (id=agent_supply_chain_security, coverage=33.33333333333333%)
+  Capabilities: dependency_audit, sbom_validation, vulnerability_scan
+  Hint: Встраивать как обязательный gate перед публикацией релиза для банка
+  API: https://internal.vendor.example/agents/supply-chain/v2, MCP: mcp://vendor-agents/supply-chain, Auth: OAuth2
+Agent overlap: 8/9 capabilities covered, 1 to build, reuse=88.88888888888889%
+Team standards: TypeScript/NestJS (vendor-ts-standards-v2)
+Infrastructure: K8s client-delivery-prod, PostgreSQL 16, Kafka, Redis
+Policies: NDA & data residency with bank clients; Ticket data retention 7y (configurable); Bank communication only via approved channels
+Available APIs: Bank Service Desk Connector API, Client SLA & Escalation API, Release Notes Publishing API
+Monitoring: prometheus, grafana, elk (SLA alerting: True)
+Template: tmpl_bank_ticket_portal — Сервис приёма тикетов от банков: webhook/REST, нормализация SLA, эскалации, связка с внутренним трекером и Confluence.
+
+[auto-expanded-details]
+
+snippet_id: tmpl_bank_ticket_portal
+domain: client_delivery
+tags: client_ticket_ingest, bank_sla_tracking, webhook_ingestion, support_portal
+stack: typescript, nestjs, postgresql
+complexity: medium
+files_count: 16
+
+Template: tmpl_release_governance — Автоматизация release notes, approvals и changelog для клиентских релизов.
+
+[auto-expanded-details]
+
+snippet_id: tmpl_release_governance
+domain: client_delivery
+tags: release_notes_builder, deploy_approval_workflow, changelog_compiler, release_calendar
+stack: typescript, postgresql
+complexity: medium
+files_count: 15
+
+
+Primary pattern: saga-pattern
+Patterns reasoning: Saga pattern handles distributed transactions and compensation actions like card blocking after escalation. Microservices supports high throughput (50k transactions/min) and blue-green deployment.
+
+Reference patterns:
+Pattern: Saga Pattern (Distributed Transactions)
+# Saga Pattern
+
+## Description
+The Saga pattern manages distributed transactions as a sequence of local transactions. If a step fails, compensating transactions are executed to undo previous steps. Two variants: Choreography (event-driven) and Orchestration (central coordinator).
+
+## When to Apply for AI Agents
+- Multi-step agent workflow that must be rolled back on failure
+- Agent pipeline that calls external services (code repos, cloud APIs)
+- Need to track partial completions and resume from failure point
+- Long-running architecture generation with intermediate saves
+
+## Example for AI Agent Builder (Orchestration Saga)
+```
+Saga: GenerateAgentArchitecture
+
+Step 1: RetrievePatterns
+  - Action: Query Qdrant
+  - Compensation: (no rollback needed)
+
+Step 2: GenerateArchitecture
+  - Action: L
+
+---
+
+Pattern: Microservices Architecture
+# Microservices Architecture
+
+## Description
+Microservices is an architectural style where an application is built as a collection of small, independently deployable services. Each service runs in its own process, communicates via lightweight mechanisms (HTTP/gRPC/messaging), and is independently deployable.
+
+## Key Components
+- **API Gateway**: Single entry point for all clients, routes requests to appropriate services
+- **Individual Services**: Each service owns its domain and data, exposes an API
+- **Service Registry/Discovery**: Tracks where services are located (Consul, Eureka)
+- **Message Broker**: Async communication between services (Kafka, RabbitMQ)
+- **Per-Service Databases**: Each service has its own database (polyglot persistence)
+
+## When to Apply for AI Agents
+- Building a mu
+
+--- RESPONSE ---
+```json
+{
+  "components": [
+    {
+      "id": "grpc_ingress",
+      "name": "gRPC Transaction Ingress",
+      "type": "api_gateway",
+      "description": "Handles 50k TPM gRPC connections from processing center with load balancing and rate limiting.",
+      "technology": "Envoy with gRPC proxy",
+      "dependencies": []
+    },
+    {
+      "id": "fraud_detection_agent",
+      "name": "Fraud Detection AI Agent",
+      "type": "llm_agent",
+      "description": "Core fraud detection logic analyzing transactions in real-time with 30ms p99 latency.",
+      "technology": "TypeScript/NestJS",
+      "dependencies": ["transaction_queue", "redis_cache"]
+    },
+    {
+      "id": "transaction_queue",
+      "name": "Transaction Processing Queue",
+      "type": "queue",
+      "description": "Buffers incoming transactions for parallel processing to handle 20k peak RPS.",
+      "technology": "Kafka",
+      "dependencies": ["grpc_ingress"]
+    },
+    {
+      "id": "escalation_orchestrator",
+      "name": "Escalation Orchestrator",
+      "type": "orchestrator",
+      "description": "Manages 2-minute escalation workflow with card blocking using Saga pattern for compensation.",
+      "technology": "LangGraph",
+      "dependencies": ["fraud_detection_agent", "agent_bank_client_ticketing_hub", "card_blocking_service"]
+    },
+    {
+      "id": "agent_bank_client_ticketing_hub",
+      "name": "Bank Client Ticketing Hub (Reused)",
+      "type": "external",
+      "description": "Reused agent handling ticket creation, SLA tracking, and escalation workflows.",
+      "technology": null,
+      "dependencies": []
+    },
+    {
+      "id": "card_blocking_service",
+      "name": "Card Blocking Service",
+      "type": "tool",
+      "description": "Executes card blocking actions through bank APIs as part of escalation compensation.",
+      "technology": "TypeScript/NestJS",
+      "dependencies": []
+    },
+    {
+      "id": "transaction_store",
+      "name": "Transaction Database",
+      "type": "database",
+      "description": "Stores transaction data with 7-year retention policy and fraud analysis results.",
+      "technology": "PostgreSQL 16",
+      "dependencies": []
+    },
+    {
+      "id": "redis_cache",
+      "name": "Redis Cache",
+      "type": "memory",
+      "description": "Low-latency cache for fraud detection rules and transaction state during processing.",
+      "technology": "Redis",
+      "dependencies": []
+    },
+    {
+      "id": "deployment_orchestrator",
+      "name": "Blue-Green Deployment Orchestrator",
+      "type": "orchestrator",
+      "description": "Manages blue-green deployment strategy with zero-downtime releases and rollback capabilities.",
+      "technology": "Kubernetes Operators",
+      "dependencies": ["fraud_detection_agent", "grpc_ingress"]
+    },
+    {
+      "id": "agent_supply_chain_security",
+      "name": "Supply Chain Security Scanner (Reused)",
+      "type": "external",
+      "description": "Reused agent performing vulnerability scanning and S
+
+
+================================================================================
+[2026-03-26 11:25:32 UTC] architect :: integration_designer
+================================================================================
+
+--- PROMPT ---
+[system] You are a software architect. Define the data flows between the given components.
+
+For each data flow:
+- from_id: source component id (must exist in the components list)
+- to_id: target component id (must exist in the components list)
+- label: brief description of what data flows (e.g., "HTTP POST /generate", "query vector + top-K results")
+- protocol: HTTP, gRPC, AMQP, WebSocket, direct call, or null
+
+Return ONLY a JSON object: {"data_flows": [...]}
+
+Rules:
+- Use only component ids from the provided list
+- Cover all major interactions
+- Avoid redundant flows
+
+[human] User request: Обращения через gRPC от процессингового центра. Лимит 50000 транзакций/минуту. Эскалация через 2 минуты с блокировкой карты. Стратегия отката blue-green. CVSS 9.0.
+
+=== ARCHITECT ROLE ===
+Ты — ИИ Архитектор. Используй данные от ИИ Аналитика.
+
+=== ANALYST MODULE OUTPUT (key data) ===
+Decision strategy: build_with_agent_reuse
+Domain: client_delivery/support_portal
+System name: FraudDetector для обнаружения мошенничества в реальном времени
+NFR: RPS=5000, peak=20000, p99=30ms
+REUSE AGENT: Bank Client Ticketing Hub (id=agent_bank_client_ticketing_hub, coverage=55.55555555555556%)
+  Capabilities: bank_sla_tracking, client_ticket_ingest, escalation_workflow, sms_confirm, sms_sending
+  Hint: Вешать перед внутренним task tracker bridge
+  API: https://internal.vendor.example/agents/bank-ticketing/v2, MCP: mcp://vendor-agents/bank-ticketing, Auth: OAuth2
+REUSE AGENT: Supply Chain Security Scanner (id=agent_supply_chain_security, coverage=33.33333333333333%)
+  Capabilities: dependency_audit, sbom_validation, vulnerability_scan
+  Hint: Встраивать как обязательный gate перед публикацией релиза для банка
+  API: https://internal.vendor.example/agents/supply-chain/v2, MCP: mcp://vendor-agents/supply-chain, Auth: OAuth2
+Agent overlap: 8/9 capabilities covered, 1 to build, reuse=88.88888888888889%
+Team standards: TypeScript/NestJS (vendor-ts-standards-v2)
+Infrastructure: K8s client-delivery-prod, PostgreSQL 16, Kafka, Redis
+Policies: NDA & data residency with bank clients; Ticket data retention 7y (configurable); Bank communication only via approved channels
+Available APIs: Bank Service Desk Connector API, Client SLA & Escalation API, Release Notes Publishing API
+Monitoring: prometheus, grafana, elk (SLA alerting: True)
+Template: tmpl_bank_ticket_portal — Сервис приёма тикетов от банков: webhook/REST, нормализация SLA, эскалации, связка с внутренним трекером и Confluence.
+
+[auto-expanded-details]
+
+snippet_id: tmpl_bank_ticket_portal
+domain: client_delivery
+tags: client_ticket_ingest, bank_sla_tracking, webhook_ingestion, support_portal
+stack: typescript, nestjs, postgresql
+complexity: medium
+files_count: 16
+
+Template: tmpl_release_governance — Автоматизация release notes, approvals и changelog для клиентских релизов.
+
+[auto-expanded-details]
+
+snippet_id: tmpl_release_governance
+domain: client_delivery
+tags: release_notes_builder, deploy_approval_workflow, changelog_compiler, release_calendar
+stack: typescript, postgresql
+complexity: medium
+files_count: 15
+
+
+Primary pattern: saga-pattern
+
+Components:
+- grpc_ingress (api_gateway): gRPC Transaction Ingress — Handles 50k TPM gRPC connections from processing center with load balancing and rate limiting.
+- fraud_detection_agent (llm_agent): Fraud Detection AI Agent — Core fraud detection logic analyzing transactions in real-time with 30ms p99 latency.
+- transaction_queue (queue): Transaction Processing Queue — Buffers incoming transactions for parallel processing to handle 20k peak RPS.
+- escalation_orchestrator (orchestrator): Escalation Orchestrator — Manages 2-minute escalation workflow with card blocking using Saga pattern for compensation.
+- agent_bank_client_ticketing_hub (external): Bank Client Ticketing Hub (Reused) — Reused agent handling ticket creation, SLA tracking, and escalation workflows.
+- card_blocking_service (tool): Card Blocking Service — Executes card blocking actions through bank APIs as part of escalation compensation.
+- transaction_store (database): Transaction Database — Stores transaction data with 7-year retention policy and fraud analysis results.
+- redis_cache (memory): Redis Cache — Low-latency cache for fraud detection rules and transaction state during processing.
+- deployment_orchestrator (orchestrator): Blue-Green Deployment Orchestrator — Manages blue-green deployment strategy with zero-downtime releases and rollback capabilities.
+- agent_supply_chain_security (external): Supply Chain Security Scanner (Reused) — Reused agent performing vulnerability scanning and SBOM validation for CVSS 9.0 compliance.
+- monitoring_gateway (api_gateway): Monitoring & Alerting Gateway — Collects metrics, logs, and triggers SLA alerts for escalation and performance monitoring.
+
+--- RESPONSE ---
+```json
+{
+  "data_flows": [
+    {
+      "from_id": "grpc_ingress",
+      "to_id": "transaction_queue",
+      "label": "Transaction data for fraud analysis",
+      "protocol": "AMQP"
+    },
+    {
+      "from_id": "transaction_queue",
+      "to_id": "fraud_detection_agent",
+      "label": "Transaction batch for real-time analysis",
+      "protocol": "AMQP"
+    },
+    {
+      "from_id": "fraud_detection_agent",
+      "to_id": "redis_cache",
+      "label": "Fraud detection rules and transaction state",
+      "protocol": "direct call"
+    },
+    {
+      "from_id": "fraud_detection_agent",
+      "to_id": "transaction_store",
+      "label": "Fraud analysis results with transaction metadata",
+      "protocol": "direct call"
+    },
+    {
+      "from_id": "fraud_detection_agent",
+      "to_id": "escalation_orchestrator",
+      "label": "Fraud alert with transaction details",
+      "protocol": "direct call"
+    },
+    {
+      "from_id": "escalation_orchestrator",
+      "to_id": "agent_bank_client_ticketing_hub",
+      "label": "Escalation ticket creation with SLA tracking",
+      "protocol": "HTTP"
+    },
+    {
+      "from_id": "escalation_orchestrator",
+      "to_id": "card_blocking_service",
+      "label": "Card blocking command with fraud evidence",
+      "protocol": "direct call"
+    },
+    {
+      "from_id": "agent_bank_client_ticketing_hub",
+      "to_id": "escalation_orchestrator",
+      "label": "Ticket status updates and SLA compliance",
+      "protocol": "HTTP"
+    },
+    {
+      "from_id": "deployment_orchestrator",
+      "to_id": "agent_supply_chain_security",
+      "label": "Release artifacts for vulnerability scanning",
+      "protocol": "HTTP"
+    },
+    {
+      "from_id": "agent_supply_chain_security",
+      "to_id": "deployment_orchestrator",
+      "label": "SBOM validation results and CVSS 9.0 compliance",
+      "protocol": "HTTP"
+    },
+    {
+      "from_id": "grpc_ingress",
+      "to_id": "monitoring_gateway",
+      "label": "Request metrics and rate limiting alerts",
+      "protocol": "HTTP"
+    },
+    {
+      "from_id": "fraud_detection_agent",
+      "to_id": "monitoring_gateway",
+      "label": "Fraud detection latency (p99=30ms) and accuracy metrics",
+      "protocol": "HTTP"
+    },
+    {
+      "from_id": "escalation_orchestrator",
+      "to_id": "monitoring_gateway",
+      "label": "Escalation timing (2-minute threshold) and card blocking status",
+      "protocol": "HTTP"
+    },
+    {
+      "from_id": "transaction_queue",
+      "to_id": "monitoring_gateway",
+      "label": "Queue depth and processing rate (peak 20k RPS)",
+      "protocol": "HTTP"
+    },
+    {
+      "from_id": "redis_cache",
+      "to_id": "monitoring_gateway",
+      "label": "Cache hit rates and memory usage",
+      "protocol": "HTTP"
+    },
+    {
+      "from_id": "transaction_store",
+      "to_id": "monitoring_gateway",
+      "label": "Database performance and 7-year retention compliance",
+      "protocol": "HTTP"
+    }
+  ]
+}
+```
+
+
+================================================================================
+[2026-03-26 11:27:06 UTC] architect :: arch_validator
+================================================================================
+
+--- PROMPT ---
+[system] You are a senior software architect reviewing an architecture draft for an AI agent system.
+
+Evaluate the architecture on 4 criteria (0.0 to 1.0 each):
+1. completeness: Are all necessary components present for the use case?
+2. correctness: Are architectural patterns applied correctly?
+3. applicability: Does this architecture actually solve the user's request?
+4. feasibility: Is this technically feasible to implement?
+
+Return ONLY a JSON object with scores, feedback, and issues list.
+Be specific in feedback — mention exact component names or flow issues.
+issues list should be empty if approved.
+
+[human] User request: Обращения через gRPC от процессингового центра. Лимит 50000 транзакций/минуту. Эскалация через 2 минуты с блокировкой карты. Стратегия отката blue-green. CVSS 9.0.
+
+Primary pattern: saga-pattern
+Patterns used: saga-pattern, microservices
+
+Components (11):
+- grpc_ingress (api_gateway): gRPC Transaction Ingress — Handles 50k TPM gRPC connections from processing center with load balancing and rate limiting. [tech: Envoy with gRPC proxy]
+- fraud_detection_agent (llm_agent): Fraud Detection AI Agent — Core fraud detection logic analyzing transactions in real-time with 30ms p99 latency. [tech: TypeScript/NestJS]
+- transaction_queue (queue): Transaction Processing Queue — Buffers incoming transactions for parallel processing to handle 20k peak RPS. [tech: Kafka]
+- escalation_orchestrator (orchestrator): Escalation Orchestrator — Manages 2-minute escalation workflow with card blocking using Saga pattern for compensation. [tech: LangGraph]
+- agent_bank_client_ticketing_hub (external): Bank Client Ticketing Hub (Reused) — Reused agent handling ticket creation, SLA tracking, and escalation workflows.
+- card_blocking_service (tool): Card Blocking Service — Executes card blocking actions through bank APIs as part of escalation compensation. [tech: TypeScript/NestJS]
+- transaction_store (database): Transaction Database — Stores transaction data with 7-year retention policy and fraud analysis results. [tech: PostgreSQL 16]
+- redis_cache (memory): Redis Cache — Low-latency cache for fraud detection rules and transaction state during processing. [tech: Redis]
+- deployment_orchestrator (orchestrator): Blue-Green Deployment Orchestrator — Manages blue-green deployment strategy with zero-downtime releases and rollback capabilities. [tech: Kubernetes Operators]
+- agent_supply_chain_security (external): Supply Chain Security Scanner (Reused) — Reused agent performing vulnerability scanning and SBOM validation for CVSS 9.0 compliance.
+- monitoring_gateway (api_gateway): Monitoring & Alerting Gateway — Collects metrics, logs, and triggers SLA alerts for escalation and performance monitoring. [tech: Prometheus, Grafana]
+
+Data flows (16):
+- grpc_ingress → transaction_queue: Transaction data for fraud analysis [AMQP]
+- transaction_queue → fraud_detection_agent: Transaction batch for real-time analysis [AMQP]
+- fraud_detection_agent → redis_cache: Fraud detection rules and transaction state [direct call]
+- fraud_detection_agent → transaction_store: Fraud analysis results with transaction metadata [direct call]
+- fraud_detection_agent → escalation_orchestrator: Fraud alert with transaction details [direct call]
+- escalation_orchestrator → agent_bank_client_ticketing_hub: Escalation ticket creation with SLA tracking [HTTP]
+- escalation_orchestrator → card_blocking_service: Card blocking command with fraud evidence [direct call]
+- agent_bank_client_ticketing_hub → escalation_orchestrator: Ticket status updates and SLA compliance [HTTP]
+- deployment_orchestrator → agent_supply_chain_security: Release artifacts for vulnerability scanning [HTTP]
+- agent_supply_chain_security → deployment_orchestrator: SBOM validation results and CVSS 9.0 compliance [HTTP]
+- grpc_ingress → monitoring_gateway: Request metrics and rate limiting alerts [HTTP]
+- fraud_detection_agent → monitoring_gateway: Fraud detection latency (p99=30ms) and accuracy metrics [HTTP]
+- escalation_orchestrator → monitoring_gateway: Escalation timing (2-minute threshold) and card blocking status [HTTP]
+- transaction_queue → monitoring_gateway: Queue depth and processing rate (peak 20k RPS) [HTTP]
+- redis_cache → monitoring_gateway: Cache hit rates and memory usage [HTTP]
+- transaction_store → monitoring_gateway: Database performance and 7-year retention compliance [HTTP]
+
+--- RESPONSE ---
+```json
+{
+    "scores": {
+        "completeness": 0.8,
+        "correctness": 0.7,
+        "applicability": 0.9,
+        "feasibility": 0.6
+    },
+    "feedback": "The architecture addresses most functional requirements but has significant technical gaps. Good coverage of fraud detection, escalation, and deployment needs, but critical latency and scalability issues exist.",
+    "issues": [
+        "fraud_detection_agent: 30ms p99 latency unrealistic for LLM-based fraud detection; consider specialized ML models instead",
+        "transaction_queue: AMQP protocol incompatible with Kafka (uses binary protocol); switch to Kafka native clients",
+        "escalation_orchestrator: Missing timer/state tracking for 2-minute escalation window; needs dedicated timeout service",
+        "redis_cache: Direct calls from fraud_detection_agent create tight coupling; should use repository pattern",
+        "deployment_orchestrator: Blue-green strategy not integrated with transaction routing; needs traffic switching component",
+        "monitoring_gateway: HTTP-based metrics collection may not handle 50k TPM; consider push-based metrics to dedicated TSDB",
+        "Missing circuit breakers for external services (bank APIs, ticketing hub)",
+        "No disaster recovery plan for PostgreSQL with 7-year retention",
+        "CVSS 9.0 requirement only addressed in supply chain; missing runtime security monitoring"
+    ]
+}
+```
+
+
+================================================================================
+[2026-03-26 11:28:57 UTC] architect :: rag_retriever
+================================================================================
+
+--- PROMPT ---
+[human] RAG query: Нужна система DocAnalyzer для автоматического анализа юридических документов. OCR, NLP, извлечение ключевых условий из договоров. RPS 20, p99 2000ms. REST API. Хранение в S3 + PostgreSQL. Интеграция с 1С. Python. Rolling deployment. Эскалация через 30 минут юристу. CVSS 7.0.
+
+--- RESPONSE ---
+- rag-agent (score=0.624)
+- cqrs-event-sourcing (score=0.618)
+- multi-agent-orchestration (score=0.591)
+- layered-architecture (score=0.533)
+- microservices (score=0.507)
+- hexagonal-architecture (score=0.506)
+- saga-pattern (score=0.505)
+- event-driven-architecture (score=0.448)
+
+
+================================================================================
+[2026-03-26 11:30:24 UTC] architect :: pattern_selector
+================================================================================
+
+--- PROMPT ---
+[system] You are a software architect. Select the 2-3 most relevant architectural patterns for the given user request from the provided list.
+
+You MUST respond with ONLY a valid JSON object, no other text:
+{
+  "selected_patterns": ["pattern_name_1", "pattern_name_2"],
+  "primary_pattern": "pattern_name_1",
+  "reasoning": "Brief explanation of why these patterns fit the request"
+}
+
+Use only pattern_name values from the provided list. Do not output anything except the JSON object.
+
+[human] User request: Нужна система DocAnalyzer для автоматического анализа юридических документов. OCR, NLP, извлечение ключевых условий из договоров. RPS 20, p99 2000ms. REST API. Хранение в S3 + PostgreSQL. Интеграция с 1С. Python. Rolling deployment. Эскалация через 30 минут юристу. CVSS 7.0.
+
+Available patterns:
+- rag-agent: RAG-based AI Agent Pattern (score: 0.62, tags: rag, llm, vector-db, retrieval)
+- cqrs-event-sourcing: CQRS + Event Sourcing (score: 0.62, tags: cqrs, event-sourcing, read-model, write-model)
+- multi-agent-orchestration: Multi-Agent Orchestration Pattern (score: 0.59, tags: multi-agent, orchestration, langgraph, pipeline)
+- layered-architecture: Layered (N-Tier) Architecture (score: 0.53, tags: layered, mvc, monolith, simple)
+- microservices: Microservices Architecture (score: 0.51, tags: distributed, scalable, independent-deployment, api)
+- hexagonal-architecture: Hexagonal Architecture (Ports & Adapters) (score: 0.51, tags: hexagonal, ports-adapters, clean-architecture, testable)
+- saga-pattern: Saga Pattern (Distributed Transactions) (score: 0.50, tags: saga, distributed, compensation, long-running)
+- event-driven-architecture: Event-Driven Architecture (score: 0.45, tags: async, decoupled, scalable, real-time)
+
+--- RESPONSE ---
+{
+  "selected_patterns": ["rag-agent", "microservices"],
+  "primary_pattern": "rag-agent",
+  "reasoning": "The system core involves AI-based document analysis with OCR and NLP, making rag-agent ideal for intelligent retrieval and extraction. Microservices supports modular components, independent deployment for rolling updates, and scalability to meet RPS 20 and p99 2000ms requirements."
+}
+
+
+================================================================================
+[2026-03-26 11:33:33 UTC] architect :: component_architect
+================================================================================
+
+--- PROMPT ---
+[system] You are a software architect. Design the list of components for an AI agent system.
+
+For each component provide:
+- id: unique snake_case identifier
+- name: human-readable name
+- type: one of [llm_agent, tool, memory, orchestrator, api_gateway, database, queue, external]
+- description: what this component does (1-2 sentences)
+- technology: specific technology (e.g., FastAPI, Qdrant, LangGraph) or null
+- dependencies: list of component ids this depends on (can be empty list)
+
+Return ONLY a JSON object: {"components": [...]}
+
+Design focused, minimal components that directly address the user request.
+
+[human] User request: Нужна система DocAnalyzer для автоматического анализа юридических документов. OCR, NLP, извлечение ключевых условий из договоров. RPS 20, p99 2000ms. REST API. Хранение в S3 + PostgreSQL. Интеграция с 1С. Python. Rolling deployment. Эскалация через 30 минут юристу. CVSS 7.0.
+
+=== ARCHITECT ROLE ===
+Ты — ИИ Архитектор. Используй данные от ИИ Аналитика.
+
+=== ANALYST MODULE OUTPUT (key data) ===
+Decision strategy: build_with_agent_reuse
+Domain: security_compliance/supply_chain
+System name: DocAnalyzer для автоматического анализа юридических документов
+NFR: RPS=20, p99=2000ms
+REUSE AGENT: Bank Client Ticketing Hub (id=agent_bank_client_ticketing_hub, coverage=14.285714285714285%)
+  Capabilities: webhook_ingestion
+  Hint: Вешать перед внутренним task tracker bridge
+  API: https://internal.vendor.example/agents/bank-ticketing/v2, MCP: mcp://vendor-agents/bank-ticketing, Auth: OAuth2
+REUSE AGENT: Supply Chain Security Scanner (id=agent_supply_chain_security, coverage=42.857142857142854%)
+  Capabilities: dependency_audit, sbom_validation, vulnerability_scan
+  Hint: Встраивать как обязательный gate перед публикацией релиза для банка
+  API: https://internal.vendor.example/agents/supply-chain/v2, MCP: mcp://vendor-agents/supply-chain, Auth: OAuth2
+REUSE AGENT: Bank Contract Intelligence (id=agent_bank_contract_intel, coverage=42.857142857142854%)
+  Capabilities: amendment_diff, contract_clause_extract, regulatory_mapping
+  Hint: Запускать перед публикацией roadmap клиенту
+  API: https://internal.vendor.example/agents/contract-intel/v1, MCP: mcp://vendor-agents/contract-intel, Auth: OAuth2
+Agent overlap: 7/7 capabilities covered, 0 to build, reuse=100.0%
+Team standards: TypeScript/NestJS (vendor-ts-standards-v2)
+Infrastructure: K8s client-delivery-prod, PostgreSQL 16, Kafka, Redis
+Policies: NDA & data residency with bank clients; Ticket data retention 7y (configurable); Bank communication only via approved channels
+Available APIs: Bank Service Desk Connector API, Client SLA & Escalation API, Release Notes Publishing API
+Monitoring: prometheus, grafana, elk (SLA alerting: True)
+Template: tmpl_bank_ticket_portal — Сервис приёма тикетов от банков: webhook/REST, нормализация SLA, эскалации, связка с внутренним трекером и Confluence.
+
+[auto-expanded-details]
+
+snippet_id: tmpl_bank_ticket_portal
+domain: client_delivery
+tags: client_ticket_ingest, bank_sla_tracking, webhook_ingestion, support_portal
+stack: typescript, nestjs, postgresql
+complexity: medium
+files_count: 16
+
+Template: tmpl_release_governance — Автоматизация release notes, approvals и changelog для клиентских релизов.
+
+[auto-expanded-details]
+
+snippet_id: tmpl_release_governance
+domain: client_delivery
+tags: release_notes_builder, deploy_approval_workflow, changelog_compiler, release_calendar
+stack: typescript, postgresql
+complexity: medium
+files_count: 15
+
+
+Primary pattern: rag-agent
+Patterns reasoning: The system core involves AI-based document analysis with OCR and NLP, making rag-agent ideal for intelligent retrieval and extraction. Microservices supports modular components, independent deployment for rolling updates, and scalability to meet RPS 20 and p99 2000ms requirements.
+
+Reference patterns:
+Pattern: RAG-based AI Agent Pattern
+# RAG-based AI Agent Pattern
+
+## Description
+Retrieval-Augmented Generation (RAG) augments LLM responses with retrieved relevant documents from a vector database. The agent embeds the query, retrieves semantically similar documents, and provides them as context to the LLM.
+
+## Key Components
+- **Vector Database**: Stores embeddings of knowledge documents (Qdrant, Weaviate, Chroma)
+- **Embedding Model**: Converts text to vector representations (nomic-embed-text, text-embedding-3-small)
+- **Retriever**: Performs semantic similarity search to find relevant chunks
+- **LLM**: Generates response using retrieved context
+- **Knowledge Base**: Source documents (Markdown, PDF, JSON)
+- **Reranker** (optional): Re-ranks retrieved results for better relevance
+
+## When to Apply for AI Agents
+- Agent nee
+
+---
+
+Pattern: Microservices Architecture
+# Microservices Architecture
+
+## Description
+Microservices is an architectural style where an application is built as a collection of small, independently deployable services. Each service runs in its own process, communicates via lightweight mechanisms (HTTP/gRPC/messaging), and is independently deployable.
+
+## Key Components
+- **API Gateway**: Single entry point for all clients, routes requests to appropriate services
+- **Individual Services**: Each service owns its domain and data, exposes an API
+- **Service Registry/Discovery**: Tracks where services are located (Consul, Eureka)
+- **Message Broker**: Async communication between services (Kafka, RabbitMQ)
+- **Per-Service Databases**: Each service has its own database (polyglot persistence)
+
+## When to Apply for AI Agents
+- Building a mu
+
+--- RESPONSE ---
+```json
+{
+  "components": [
+    {
+      "id": "api_gateway",
+      "name": "REST API Gateway",
+      "type": "api_gateway",
+      "description": "Single entry point for all client requests, handles authentication, rate limiting, and routing to appropriate services.",
+      "technology": "FastAPI",
+      "dependencies": []
+    },
+    {
+      "id": "document_ingestion_service",
+      "name": "Document Ingestion Service",
+      "type": "tool",
+      "description": "Accepts uploaded legal documents, validates formats, and stores them in S3 while creating metadata records in PostgreSQL.",
+      "technology": "FastAPI",
+      "dependencies": ["api_gateway", "document_storage_s3", "metadata_db_postgresql"]
+    },
+    {
+      "id": "ocr_processor",
+      "name": "OCR Processing Service",
+      "type": "tool",
+      "description": "Extracts text from scanned documents and images using optical character recognition.",
+      "technology": "Tesseract/PyTesseract",
+      "dependencies": ["document_storage_s3"]
+    },
+    {
+      "id": "document_analysis_orchestrator",
+      "name": "Document Analysis Orchestrator",
+      "type": "orchestrator",
+      "description": "Coordinates the document analysis pipeline: OCR → NLP processing → external agent calls → result aggregation.",
+      "technology": "LangGraph",
+      "dependencies": ["ocr_processor", "agent_bank_contract_intel", "agent_supply_chain_security", "message_queue_kafka"]
+    },
+    {
+      "id": "agent_bank_contract_intel",
+      "name": "Bank Contract Intelligence Agent",
+      "type": "external",
+      "description": "External AI agent for contract clause extraction, amendment comparison, and regulatory mapping.",
+      "technology": null,
+      "dependencies": []
+    },
+    {
+      "id": "agent_supply_chain_security",
+      "name": "Supply Chain Security Scanner Agent",
+      "type": "external",
+      "description": "External AI agent for dependency auditing, SBOM validation, and vulnerability scanning in document contexts.",
+      "technology": null,
+      "dependencies": []
+    },
+    {
+      "id": "agent_bank_client_ticketing_hub",
+      "name": "Bank Client Ticketing Hub Agent",
+      "type": "external",
+      "description": "External agent for creating escalation tickets to lawyers after 30-minute timeout.",
+      "technology": null,
+      "dependencies": []
+    },
+    {
+      "id": "escalation_service",
+      "name": "Escalation Service",
+      "type": "tool",
+      "description": "Monitors analysis timelines and triggers escalation to lawyers via ticketing agent after 30 minutes.",
+      "technology": null,
+      "dependencies": ["agent_bank_client_ticketing_hub", "metadata_db_postgresql"]
+    },
+    {
+      "id": "1c_integration_adapter",
+      "name": "1C Integration Adapter",
+      "type": "tool",
+      "description": "Transforms analysis results into 1C-compatible formats and synchronizes data with the 1C system.",
+      "technology": null,
+      "dependencies": ["metadata_db_postgresql"
+
+
+================================================================================
+[2026-03-26 11:36:49 UTC] architect :: integration_designer
+================================================================================
+
+--- PROMPT ---
+[system] You are a software architect. Define the data flows between the given components.
+
+For each data flow:
+- from_id: source component id (must exist in the components list)
+- to_id: target component id (must exist in the components list)
+- label: brief description of what data flows (e.g., "HTTP POST /generate", "query vector + top-K results")
+- protocol: HTTP, gRPC, AMQP, WebSocket, direct call, or null
+
+Return ONLY a JSON object: {"data_flows": [...]}
+
+Rules:
+- Use only component ids from the provided list
+- Cover all major interactions
+- Avoid redundant flows
+
+[human] User request: Нужна система DocAnalyzer для автоматического анализа юридических документов. OCR, NLP, извлечение ключевых условий из договоров. RPS 20, p99 2000ms. REST API. Хранение в S3 + PostgreSQL. Интеграция с 1С. Python. Rolling deployment. Эскалация через 30 минут юристу. CVSS 7.0.
+
+=== ARCHITECT ROLE ===
+Ты — ИИ Архитектор. Используй данные от ИИ Аналитика.
+
+=== ANALYST MODULE OUTPUT (key data) ===
+Decision strategy: build_with_agent_reuse
+Domain: security_compliance/supply_chain
+System name: DocAnalyzer для автоматического анализа юридических документов
+NFR: RPS=20, p99=2000ms
+REUSE AGENT: Bank Client Ticketing Hub (id=agent_bank_client_ticketing_hub, coverage=14.285714285714285%)
+  Capabilities: webhook_ingestion
+  Hint: Вешать перед внутренним task tracker bridge
+  API: https://internal.vendor.example/agents/bank-ticketing/v2, MCP: mcp://vendor-agents/bank-ticketing, Auth: OAuth2
+REUSE AGENT: Supply Chain Security Scanner (id=agent_supply_chain_security, coverage=42.857142857142854%)
+  Capabilities: dependency_audit, sbom_validation, vulnerability_scan
+  Hint: Встраивать как обязательный gate перед публикацией релиза для банка
+  API: https://internal.vendor.example/agents/supply-chain/v2, MCP: mcp://vendor-agents/supply-chain, Auth: OAuth2
+REUSE AGENT: Bank Contract Intelligence (id=agent_bank_contract_intel, coverage=42.857142857142854%)
+  Capabilities: amendment_diff, contract_clause_extract, regulatory_mapping
+  Hint: Запускать перед публикацией roadmap клиенту
+  API: https://internal.vendor.example/agents/contract-intel/v1, MCP: mcp://vendor-agents/contract-intel, Auth: OAuth2
+Agent overlap: 7/7 capabilities covered, 0 to build, reuse=100.0%
+Team standards: TypeScript/NestJS (vendor-ts-standards-v2)
+Infrastructure: K8s client-delivery-prod, PostgreSQL 16, Kafka, Redis
+Policies: NDA & data residency with bank clients; Ticket data retention 7y (configurable); Bank communication only via approved channels
+Available APIs: Bank Service Desk Connector API, Client SLA & Escalation API, Release Notes Publishing API
+Monitoring: prometheus, grafana, elk (SLA alerting: True)
+Template: tmpl_bank_ticket_portal — Сервис приёма тикетов от банков: webhook/REST, нормализация SLA, эскалации, связка с внутренним трекером и Confluence.
+
+[auto-expanded-details]
+
+snippet_id: tmpl_bank_ticket_portal
+domain: client_delivery
+tags: client_ticket_ingest, bank_sla_tracking, webhook_ingestion, support_portal
+stack: typescript, nestjs, postgresql
+complexity: medium
+files_count: 16
+
+Template: tmpl_release_governance — Автоматизация release notes, approvals и changelog для клиентских релизов.
+
+[auto-expanded-details]
+
+snippet_id: tmpl_release_governance
+domain: client_delivery
+tags: release_notes_builder, deploy_approval_workflow, changelog_compiler, release_calendar
+stack: typescript, postgresql
+complexity: medium
+files_count: 15
+
+
+Primary pattern: rag-agent
+
+Components:
+- api_gateway (api_gateway): REST API Gateway — Single entry point for all client requests, handles authentication, rate limiting, and routing to appropriate services.
+- document_ingestion_service (tool): Document Ingestion Service — Accepts uploaded legal documents, validates formats, and stores them in S3 while creating metadata records in PostgreSQL.
+- ocr_processor (tool): OCR Processing Service — Extracts text from scanned documents and images using optical character recognition.
+- document_analysis_orchestrator (orchestrator): Document Analysis Orchestrator — Coordinates the document analysis pipeline: OCR → NLP processing → external agent calls → result aggregation.
+- agent_bank_contract_intel (external): Bank Contract Intelligence Agent — External AI agent for contract clause extraction, amendment comparison, and regulatory mapping.
+- agent_supply_chain_security (external): Supply Chain Security Scanner Agent — External AI agent for dependency auditing, SBOM validation, and vulnerability scanning in document contexts.
+- agent_bank_client_ticketing_hub (external): Bank Client Ticketing Hub Agent — External agent for creating escalation tickets to lawyers after 30-minute timeout.
+- escalation_service (tool): Escalation Service — Monitors analysis timelines and triggers escalation to lawyers via ticketing agent after 30 minutes.
+- 1c_integration_adapter (tool): 1C Integration Adapter — Transforms analysis results into 1C-compatible formats and synchronizes data with the 1C system.
+- document_storage_s3 (external): Document Storage (S3) — Cloud object storage for original documents, OCR outputs, and analysis artifacts.
+- metadata_db_postgresql (database): Metadata Database (PostgreSQL) — Stores document metadata, analysis results, processing statuses, and escalation records.
+- message_queue_kafka (queue): Message Queue — Handles asynchronous communication between services for document processing and escalation events.
+- monitoring_alerting (external): Monitoring & Alerting — Tracks system performance (RPS, p99 latency), SLA compliance, and triggers alerts for CVSS 7.0+ issues.
+
+--- RESPONSE ---
+```json
+{
+  "data_flows": [
+    {
+      "from_id": "api_gateway",
+      "to_id": "document_ingestion_service",
+      "label": "Upload legal document (multipart/form-data)",
+      "protocol": "HTTP"
+    },
+    {
+      "from_id": "document_ingestion_service",
+      "to_id": "document_storage_s3",
+      "label": "Store original document",
+      "protocol": "direct call"
+    },
+    {
+      "from_id": "document_ingestion_service",
+      "to_id": "metadata_db_postgresql",
+      "label": "Create document metadata record",
+      "protocol": "direct call"
+    },
+    {
+      "from_id": "document_ingestion_service",
+      "to_id": "message_queue_kafka",
+      "label": "Document ready for OCR processing event",
+      "protocol": "AMQP"
+    },
+    {
+      "from_id": "message_queue_kafka",
+      "to_id": "ocr_processor",
+      "label": "Consume OCR processing task",
+      "protocol": "AMQP"
+    },
+    {
+      "from_id": "ocr_processor",
+      "to_id": "document_storage_s3",
+      "label": "Store OCR text output",
+      "protocol": "direct call"
+    },
+    {
+      "from_id": "ocr_processor",
+      "to_id": "metadata_db_postgresql",
+      "label": "Update document with OCR status and text location",
+      "protocol": "direct call"
+    },
+    {
+      "from_id": "ocr_processor",
+      "to_id": "message_queue_kafka",
+      "label": "OCR completed, ready for analysis event",
+      "protocol": "AMQP"
+    },
+    {
+      "from_id": "message_queue_kafka",
+      "to_id": "document_analysis_orchestrator",
+      "label": "Consume document analysis task",
+      "protocol": "AMQP"
+    },
+    {
+      "from_id": "document_analysis_orchestrator",
+      "to_id": "agent_bank_contract_intel",
+      "label": "OCR text + analysis request for clause extraction",
+      "protocol": "HTTP"
+    },
+    {
+      "from_id": "agent_bank_contract_intel",
+      "to_id": "document_analysis_orchestrator",
+      "label": "Extracted clauses, amendments, regulatory mappings",
+      "protocol": "HTTP"
+    },
+    {
+      "from_id": "document_analysis_orchestrator",
+      "to_id": "agent_supply_chain_security",
+      "label": "Document metadata + text for security audit",
+      "protocol": "HTTP"
+    },
+    {
+      "from_id": "agent_supply_chain_security",
+      "to_id": "document_analysis_orchestrator",
+      "label": "Vulnerability scan results, SBOM validation",
+      "protocol": "HTTP"
+    },
+    {
+      "from_id": "document_analysis_orchestrator",
+      "to_id": "metadata_db_postgresql",
+      "label": "Store aggregated analysis results",
+      "protocol": "direct call"
+    },
+    {
+      "from_id": "document_analysis_orchestrator",
+      "to_id": "1c_integration_adapter",
+      "label": "Analysis results for 1C transformation",
+      "protocol": "direct call"
+    },
+    {
+      "from_id": "1c_integration_adapter",
+      "to_id": "metadata_db_postgresql",
+      "label": "Store 1C synchronization status",
+      "protocol": "direct call"
+    },
+    {
+      "from_id": "document_ingestion_service",
+  
+
+
+================================================================================
+[2026-03-26 11:53:08 UTC] architect :: arch_validator
+================================================================================
+
+--- PROMPT ---
+[system] You are a senior software architect reviewing an architecture draft for an AI agent system.
+
+Evaluate the architecture on 4 criteria (0.0 to 1.0 each):
+1. completeness: Are all necessary components present for the use case?
+2. correctness: Are architectural patterns applied correctly?
+3. applicability: Does this architecture actually solve the user's request?
+4. feasibility: Is this technically feasible to implement?
+
+Return ONLY a JSON object with scores, feedback, and issues list.
+Be specific in feedback — mention exact component names or flow issues.
+issues list should be empty if approved.
+
+[human] User request: Нужна система DocAnalyzer для автоматического анализа юридических документов. OCR, NLP, извлечение ключевых условий из договоров. RPS 20, p99 2000ms. REST API. Хранение в S3 + PostgreSQL. Интеграция с 1С. Python. Rolling deployment. Эскалация через 30 минут юристу. CVSS 7.0.
+
+Primary pattern: rag-agent
+Patterns used: rag-agent, microservices
+
+Components (13):
+- api_gateway (api_gateway): REST API Gateway — Single entry point for all client requests, handles authentication, rate limiting, and routing to appropriate services. [tech: FastAPI]
+- document_ingestion_service (tool): Document Ingestion Service — Accepts uploaded legal documents, validates formats, and stores them in S3 while creating metadata records in PostgreSQL. [tech: FastAPI]
+- ocr_processor (tool): OCR Processing Service — Extracts text from scanned documents and images using optical character recognition. [tech: Tesseract/PyTesseract]
+- document_analysis_orchestrator (orchestrator): Document Analysis Orchestrator — Coordinates the document analysis pipeline: OCR → NLP processing → external agent calls → result aggregation. [tech: LangGraph]
+- agent_bank_contract_intel (external): Bank Contract Intelligence Agent — External AI agent for contract clause extraction, amendment comparison, and regulatory mapping.
+- agent_supply_chain_security (external): Supply Chain Security Scanner Agent — External AI agent for dependency auditing, SBOM validation, and vulnerability scanning in document contexts.
+- agent_bank_client_ticketing_hub (external): Bank Client Ticketing Hub Agent — External agent for creating escalation tickets to lawyers after 30-minute timeout.
+- escalation_service (tool): Escalation Service — Monitors analysis timelines and triggers escalation to lawyers via ticketing agent after 30 minutes.
+- 1c_integration_adapter (tool): 1C Integration Adapter — Transforms analysis results into 1C-compatible formats and synchronizes data with the 1C system.
+- document_storage_s3 (external): Document Storage (S3) — Cloud object storage for original documents, OCR outputs, and analysis artifacts. [tech: Amazon S3]
+- metadata_db_postgresql (database): Metadata Database (PostgreSQL) — Stores document metadata, analysis results, processing statuses, and escalation records. [tech: PostgreSQL 16]
+- message_queue_kafka (queue): Message Queue — Handles asynchronous communication between services for document processing and escalation events. [tech: Apache Kafka]
+- monitoring_alerting (external): Monitoring & Alerting — Tracks system performance (RPS, p99 latency), SLA compliance, and triggers alerts for CVSS 7.0+ issues. [tech: Prometheus/Grafana/ELK]
+
+Data flows (23):
+- api_gateway → document_ingestion_service: Upload legal document (multipart/form-data) [HTTP]
+- document_ingestion_service → document_storage_s3: Store original document [direct call]
+- document_ingestion_service → metadata_db_postgresql: Create document metadata record [direct call]
+- document_ingestion_service → message_queue_kafka: Document ready for OCR processing event [AMQP]
+- message_queue_kafka → ocr_processor: Consume OCR processing task [AMQP]
+- ocr_processor → document_storage_s3: Store OCR text output [direct call]
+- ocr_processor → metadata_db_postgresql: Update document with OCR status and text location [direct call]
+- ocr_processor → message_queue_kafka: OCR completed, ready for analysis event [AMQP]
+- message_queue_kafka → document_analysis_orchestrator: Consume document analysis task [AMQP]
+- document_analysis_orchestrator → agent_bank_contract_intel: OCR text + analysis request for clause extraction [HTTP]
+- agent_bank_contract_intel → document_analysis_orchestrator: Extracted clauses, amendments, regulatory mappings [HTTP]
+- document_analysis_orchestrator → agent_supply_chain_security: Document metadata + text for security audit [HTTP]
+- agent_supply_chain_security → document_analysis_orchestrator: Vulnerability scan results, SBOM validation [HTTP]
+- document_analysis_orchestrator → metadata_db_postgresql: Store aggregated analysis results [direct call]
+- document_analysis_orchestrator → 1c_integration_adapter: Analysis results for 1C transformation [direct call]
+- 1c_integration_adapter → metadata_db_postgresql: Store 1C synchronization status [direct call]
+- document_ingestion_service → escalation_service: Document submission timestamp for timeout tracking [direct call]
+- document_analysis_orchestrator → escalation_service: Analysis completion notification to cancel timer [direct call]
+- escalation_service → agent_bank_client_ticketing_hub: Create lawyer escalation ticket after 30min timeout [HTTP]
+- escalation_service → metadata_db_postgresql: Store escalation records and status [direct call]
+- api_gateway → monitoring_alerting: API request metrics (latency, RPS) [HTTP]
+- document_analysis_orchestrator → monitoring_alerting: Analysis pipeline performance and agent call metrics [HTTP]
+- escalation_service → monitoring_alerting: Escalation events and SLA breach alerts [HTTP]
+
+--- RESPONSE ---
+```json
+{
+    "scores": {
+        "completeness": 0.7,
+        "correctness": 0.6,
+        "applicability": 0.8,
+        "feasibility": 0.7
+    },
+    "feedback": "The architecture addresses most functional requirements but has significant design issues. The RAG pattern is misapplied - no vector database, embedding generation, or retrieval components exist despite being labeled as 'rag-agent'. External agents are over-specified for the use case (supply chain security doesn't align with legal document analysis). The escalation mechanism is overly complex with a dedicated service when simpler timeout handling would suffice. Performance requirements (RPS 20, p99 2000ms) may be challenging with multiple external HTTP calls in the critical path.",
+    "issues": [
+        "Missing RAG components: No vector database, embedding service, or retrieval mechanism despite 'rag-agent' pattern",
+        "Incorrect agent usage: 'agent_supply_chain_security' is irrelevant for legal document analysis",
+        "Over-engineered escalation: Dedicated escalation_service is unnecessary; timeout handling could be in orchestrator",
+        "Performance risk: Multiple synchronous external HTTP calls in document_analysis_orchestrator may violate p99 2000ms",
+        "Missing security components: CVSS 7.0 requirement needs authentication/authorization beyond API gateway",
+        "Data flow gaps: No error handling flows, retry mechanisms, or dead letter queues specified",
+        "Integration ambiguity: 1C adapter lacks clear sync direction and failure handling",
+        "Deployment missing: Rolling deployment strategy not reflected in component design"
+    ]
+}
+```
+
+
+================================================================================
+[2026-03-26 11:58:42 UTC] architect :: rag_retriever
+================================================================================
+
+--- PROMPT ---
+[human] RAG query: Подтверждаю все требования.
+
+--- RESPONSE ---
+- hexagonal-architecture (score=0.332)
+- layered-architecture (score=0.314)
+- multi-agent-orchestration (score=0.312)
+- cqrs-event-sourcing (score=0.295)
+- saga-pattern (score=0.276)
+- microservices (score=0.268)
+- rag-agent (score=0.252)
+- event-driven-architecture (score=0.241)
+
+
+================================================================================
+[2026-03-26 11:59:47 UTC] architect :: pattern_selector
+================================================================================
+
+--- PROMPT ---
+[system] You are a software architect. Select the 2-3 most relevant architectural patterns for the given user request from the provided list.
+
+You MUST respond with ONLY a valid JSON object, no other text:
+{
+  "selected_patterns": ["pattern_name_1", "pattern_name_2"],
+  "primary_pattern": "pattern_name_1",
+  "reasoning": "Brief explanation of why these patterns fit the request"
+}
+
+Use only pattern_name values from the provided list. Do not output anything except the JSON object.
+
+[human] User request: Подтверждаю все требования.
+
+Available patterns:
+- hexagonal-architecture: Hexagonal Architecture (Ports & Adapters) (score: 0.33, tags: hexagonal, ports-adapters, clean-architecture, testable)
+- layered-architecture: Layered (N-Tier) Architecture (score: 0.31, tags: layered, mvc, monolith, simple)
+- multi-agent-orchestration: Multi-Agent Orchestration Pattern (score: 0.31, tags: multi-agent, orchestration, langgraph, pipeline)
+- cqrs-event-sourcing: CQRS + Event Sourcing (score: 0.30, tags: cqrs, event-sourcing, read-model, write-model)
+- saga-pattern: Saga Pattern (Distributed Transactions) (score: 0.28, tags: saga, distributed, compensation, long-running)
+- microservices: Microservices Architecture (score: 0.27, tags: distributed, scalable, independent-deployment, api)
+- rag-agent: RAG-based AI Agent Pattern (score: 0.25, tags: rag, llm, vector-db, retrieval)
+- event-driven-architecture: Event-Driven Architecture (score: 0.24, tags: async, decoupled, scalable, real-time)
+
+--- RESPONSE ---
+{
+  "selected_patterns": ["hexagonal-architecture", "layered-architecture"],
+  "primary_pattern": "hexagonal-architecture",
+  "reasoning": "The user's confirmation of all requirements suggests a comprehensive set of needs for a robust and adaptable system. Hexagonal Architecture provides testability and decoupling from external systems, while Layered Architecture offers a straightforward separation of concerns, making these patterns versatile for accommodating various functional and non-functional requirements."
+}
+
+
+================================================================================
+[2026-03-26 12:01:33 UTC] architect :: component_architect
+================================================================================
+
+--- PROMPT ---
+[system] You are a software architect. Design the list of components for an AI agent system.
+
+For each component provide:
+- id: unique snake_case identifier
+- name: human-readable name
+- type: one of [llm_agent, tool, memory, orchestrator, api_gateway, database, queue, external]
+- description: what this component does (1-2 sentences)
+- technology: specific technology (e.g., FastAPI, Qdrant, LangGraph) or null
+- dependencies: list of component ids this depends on (can be empty list)
+
+Return ONLY a JSON object: {"components": [...]}
+
+Design focused, minimal components that directly address the user request.
+
+[human] User request: Подтверждаю все требования.
+
+=== ARCHITECT ROLE ===
+Ты — ИИ Архитектор. Используй данные от ИИ Аналитика.
+
+=== ANALYST MODULE OUTPUT (key data) ===
+Decision strategy: build_with_agent_reuse
+Domain: client_delivery/support_portal
+System name: DocAnalyzer для автоматического анализа юридических документов
+NFR: RPS=20, peak=100, p99=2000ms
+REUSE AGENT: Bank Client Ticketing Hub (id=agent_bank_client_ticketing_hub, coverage=36.36363636363637%)
+  Capabilities: bank_sla_tracking, client_ticket_ingest, escalation_workflow, webhook_ingestion
+  Hint: Вешать перед внутренним task tracker bridge
+  API: https://internal.vendor.example/agents/bank-ticketing/v2, MCP: mcp://vendor-agents/bank-ticketing, Auth: OAuth2
+REUSE AGENT: Supply Chain Security Scanner (id=agent_supply_chain_security, coverage=27.27272727272727%)
+  Capabilities: dependency_audit, sbom_validation, vulnerability_scan
+  Hint: Встраивать как обязательный gate перед публикацией релиза для банка
+  API: https://internal.vendor.example/agents/supply-chain/v2, MCP: mcp://vendor-agents/supply-chain, Auth: OAuth2
+REUSE AGENT: Bank Contract Intelligence (id=agent_bank_contract_intel, coverage=27.27272727272727%)
+  Capabilities: amendment_diff, contract_clause_extract, regulatory_mapping
+  Hint: Запускать перед публикацией roadmap клиенту
+  API: https://internal.vendor.example/agents/contract-intel/v1, MCP: mcp://vendor-agents/contract-intel, Auth: OAuth2
+Agent overlap: 10/11 capabilities covered, 1 to build, reuse=90.9090909090909%
+Team standards: TypeScript/NestJS (vendor-ts-standards-v2)
+Infrastructure: K8s client-delivery-prod, PostgreSQL 16, Kafka, Redis
+Policies: NDA & data residency with bank clients; Ticket data retention 7y (configurable); Bank communication only via approved channels
+Available APIs: Bank Service Desk Connector API, Client SLA & Escalation API, Release Notes Publishing API
+Monitoring: prometheus, grafana, elk (SLA alerting: True)
+Template: tmpl_bank_ticket_portal — Сервис приёма тикетов от банков: webhook/REST, нормализация SLA, эскалации, связка с внутренним трекером и Confluence.
+
+[auto-expanded-details]
+
+snippet_id: tmpl_bank_ticket_portal
+domain: client_delivery
+tags: client_ticket_ingest, bank_sla_tracking, webhook_ingestion, support_portal
+stack: typescript, nestjs, postgresql
+complexity: medium
+files_count: 16
+
+Template: tmpl_release_governance — Автоматизация release notes, approvals и changelog для клиентских релизов.
+
+[auto-expanded-details]
+
+snippet_id: tmpl_release_governance
+domain: client_delivery
+tags: release_notes_builder, deploy_approval_workflow, changelog_compiler, release_calendar
+stack: typescript, postgresql
+complexity: medium
+files_count: 15
+
+
+Primary pattern: hexagonal-architecture
+Patterns reasoning: The user's confirmation of all requirements suggests a comprehensive set of needs for a robust and adaptable system. Hexagonal Architecture provides testability and decoupling from external systems, while Layered Architecture offers a straightforward separation of concerns, making these patterns versatile for accommodating various functional and non-functional requirements.
+
+Reference patterns:
+Pattern: Hexagonal Architecture (Ports & Adapters)
+# Hexagonal Architecture (Ports & Adapters)
+
+## Description
+Hexagonal Architecture isolates the core domain logic from external systems. The domain communicates with the outside world through Ports (interfaces) and Adapters (implementations). This makes it easy to swap external dependencies (LLM providers, databases) without changing core logic.
+
+## Key Components
+- **Domain Core**: Business logic, completely independent of external systems
+- **Ports (Interfaces)**: Define how the domain communicates with the outside
+  - Primary/Driving Ports: How external actors invoke the domain (API, CLI)
+  - Secondary/Driven Ports: How domain invokes external systems (DB, LLM)
+- **Adapters**: Concrete implementations of ports
+  - Primary Adapters: REST API, gRPC, CLI
+  - Secondary Adapters: Qdrant adap
+
+---
+
+Pattern: Layered (N-Tier) Architecture
+# Layered (N-Tier) Architecture
+
+## Description
+Layered architecture organizes code into horizontal layers, each with a specific responsibility. Each layer only communicates with the layer directly below it. Simple, well-understood, and easy to reason about.
+
+## Layers
+- **Presentation Layer**: HTTP handlers, API routes, request/response models
+- **Application/Business Logic Layer**: Use cases, domain logic, agent orchestration
+- **Infrastructure Layer**: Database access, external API clients, LLM clients
+- **Domain Layer** (optional): Core entities and business rules
+
+## When to Apply for AI Agents
+- Single-service AI agent with clear separation of concerns
+- Small team, fast development needed (hackathon)
+- Agent doesn't need complex distribution
+- Starting point before evolving to micro
+
+--- RESPONSE ---
+```json
+{
+  "components": [
+    {
+      "id": "main_api_gateway",
+      "name": "Main API Gateway",
+      "type": "api_gateway",
+      "description": "Handles incoming HTTP requests, authentication, rate limiting, and routes requests to appropriate internal services.",
+      "technology": "NestJS",
+      "dependencies": []
+    },
+    {
+      "id": "document_analysis_orchestrator",
+      "name": "Document Analysis Orchestrator",
+      "type": "orchestrator",
+      "description": "Coordinates the document analysis workflow, calling appropriate agents and tools in sequence based on document type and requirements.",
+      "technology": "LangGraph",
+      "dependencies": ["legal_document_analyzer", "bank_contract_intelligence", "supply_chain_security_scanner", "document_repository"]
+    },
+    {
+      "id": "legal_document_analyzer",
+      "name": "Legal Document Analyzer",
+      "type": "llm_agent",
+      "description": "Primary agent that analyzes legal documents, extracts key clauses, identifies risks, and generates summaries.",
+      "technology": null,
+      "dependencies": ["document_repository", "analysis_memory"]
+    },
+    {
+      "id": "bank_contract_intelligence",
+      "name": "Bank Contract Intelligence",
+      "type": "external",
+      "description": "External vendor agent for contract clause extraction, amendment diffing, and regulatory mapping.",
+      "technology": null,
+      "dependencies": []
+    },
+    {
+      "id": "supply_chain_security_scanner",
+      "name": "Supply Chain Security Scanner",
+      "type": "external",
+      "description": "External vendor agent for dependency auditing, SBOM validation, and vulnerability scanning of software components.",
+      "technology": null,
+      "dependencies": []
+    },
+    {
+      "id": "bank_client_ticketing_hub",
+      "name": "Bank Client Ticketing Hub",
+      "type": "external",
+      "description": "External vendor agent for ticket ingestion, SLA tracking, and escalation workflows.",
+      "technology": null,
+      "dependencies": []
+    },
+    {
+      "id": "document_repository",
+      "name": "Document Repository",
+      "type": "database",
+      "description": "Stores uploaded legal documents, analysis results, metadata, and version history.",
+      "technology": "PostgreSQL 16",
+      "dependencies": []
+    },
+    {
+      "id": "analysis_memory",
+      "name": "Analysis Memory",
+      "type": "memory",
+      "description": "Stores conversation context, analysis patterns, and learned document structures for improved future analyses.",
+      "technology": "Redis",
+      "dependencies": []
+    },
+    {
+      "id": "event_bus",
+      "name": "Event Bus",
+      "type": "queue",
+      "description": "Handles asynchronous communication between components, ensuring reliable message delivery for long-running analysis tasks.",
+      "technology": "Kafka",
+      "dependencies": []
+    },
+    {
+      "id": "bank_service_desk_connector",
+      "name": "Bank Service Desk Connector",
+      "t
+
+
+================================================================================
+[2026-03-26 12:04:04 UTC] architect :: integration_designer
+================================================================================
+
+--- PROMPT ---
+[system] You are a software architect. Define the data flows between the given components.
+
+For each data flow:
+- from_id: source component id (must exist in the components list)
+- to_id: target component id (must exist in the components list)
+- label: brief description of what data flows (e.g., "HTTP POST /generate", "query vector + top-K results")
+- protocol: HTTP, gRPC, AMQP, WebSocket, direct call, or null
+
+Return ONLY a JSON object: {"data_flows": [...]}
+
+Rules:
+- Use only component ids from the provided list
+- Cover all major interactions
+- Avoid redundant flows
+
+[human] User request: Подтверждаю все требования.
+
+=== ARCHITECT ROLE ===
+Ты — ИИ Архитектор. Используй данные от ИИ Аналитика.
+
+=== ANALYST MODULE OUTPUT (key data) ===
+Decision strategy: build_with_agent_reuse
+Domain: client_delivery/support_portal
+System name: DocAnalyzer для автоматического анализа юридических документов
+NFR: RPS=20, peak=100, p99=2000ms
+REUSE AGENT: Bank Client Ticketing Hub (id=agent_bank_client_ticketing_hub, coverage=36.36363636363637%)
+  Capabilities: bank_sla_tracking, client_ticket_ingest, escalation_workflow, webhook_ingestion
+  Hint: Вешать перед внутренним task tracker bridge
+  API: https://internal.vendor.example/agents/bank-ticketing/v2, MCP: mcp://vendor-agents/bank-ticketing, Auth: OAuth2
+REUSE AGENT: Supply Chain Security Scanner (id=agent_supply_chain_security, coverage=27.27272727272727%)
+  Capabilities: dependency_audit, sbom_validation, vulnerability_scan
+  Hint: Встраивать как обязательный gate перед публикацией релиза для банка
+  API: https://internal.vendor.example/agents/supply-chain/v2, MCP: mcp://vendor-agents/supply-chain, Auth: OAuth2
+REUSE AGENT: Bank Contract Intelligence (id=agent_bank_contract_intel, coverage=27.27272727272727%)
+  Capabilities: amendment_diff, contract_clause_extract, regulatory_mapping
+  Hint: Запускать перед публикацией roadmap клиенту
+  API: https://internal.vendor.example/agents/contract-intel/v1, MCP: mcp://vendor-agents/contract-intel, Auth: OAuth2
+Agent overlap: 10/11 capabilities covered, 1 to build, reuse=90.9090909090909%
+Team standards: TypeScript/NestJS (vendor-ts-standards-v2)
+Infrastructure: K8s client-delivery-prod, PostgreSQL 16, Kafka, Redis
+Policies: NDA & data residency with bank clients; Ticket data retention 7y (configurable); Bank communication only via approved channels
+Available APIs: Bank Service Desk Connector API, Client SLA & Escalation API, Release Notes Publishing API
+Monitoring: prometheus, grafana, elk (SLA alerting: True)
+Template: tmpl_bank_ticket_portal — Сервис приёма тикетов от банков: webhook/REST, нормализация SLA, эскалации, связка с внутренним трекером и Confluence.
+
+[auto-expanded-details]
+
+snippet_id: tmpl_bank_ticket_portal
+domain: client_delivery
+tags: client_ticket_ingest, bank_sla_tracking, webhook_ingestion, support_portal
+stack: typescript, nestjs, postgresql
+complexity: medium
+files_count: 16
+
+Template: tmpl_release_governance — Автоматизация release notes, approvals и changelog для клиентских релизов.
+
+[auto-expanded-details]
+
+snippet_id: tmpl_release_governance
+domain: client_delivery
+tags: release_notes_builder, deploy_approval_workflow, changelog_compiler, release_calendar
+stack: typescript, postgresql
+complexity: medium
+files_count: 15
+
+
+Primary pattern: hexagonal-architecture
+
+Components:
+- main_api_gateway (api_gateway): Main API Gateway — Handles incoming HTTP requests, authentication, rate limiting, and routes requests to appropriate internal services.
+- document_analysis_orchestrator (orchestrator): Document Analysis Orchestrator — Coordinates the document analysis workflow, calling appropriate agents and tools in sequence based on document type and requirements.
+- legal_document_analyzer (llm_agent): Legal Document Analyzer — Primary agent that analyzes legal documents, extracts key clauses, identifies risks, and generates summaries.
+- bank_contract_intelligence (external): Bank Contract Intelligence — External vendor agent for contract clause extraction, amendment diffing, and regulatory mapping.
+- supply_chain_security_scanner (external): Supply Chain Security Scanner — External vendor agent for dependency auditing, SBOM validation, and vulnerability scanning of software components.
+- bank_client_ticketing_hub (external): Bank Client Ticketing Hub — External vendor agent for ticket ingestion, SLA tracking, and escalation workflows.
+- document_repository (database): Document Repository — Stores uploaded legal documents, analysis results, metadata, and version history.
+- analysis_memory (memory): Analysis Memory — Stores conversation context, analysis patterns, and learned document structures for improved future analyses.
+- event_bus (queue): Event Bus — Handles asynchronous communication between components, ensuring reliable message delivery for long-running analysis tasks.
+- bank_service_desk_connector (tool): Bank Service Desk Connector — Tool that integrates with bank service desk systems to create tickets and track escalations based on analysis findings.
+- release_notes_publisher (tool): Release Notes Publisher — Tool that formats and publishes analysis results and release documentation to approved bank communication channels.
+
+--- RESPONSE ---
+```json
+{
+  "data_flows": [
+    {
+      "from_id": "main_api_gateway",
+      "to_id": "document_analysis_orchestrator",
+      "label": "HTTP POST /analyze with document payload",
+      "protocol": "HTTP"
+    },
+    {
+      "from_id": "document_analysis_orchestrator",
+      "to_id": "document_repository",
+      "label": "Store uploaded document and metadata",
+      "protocol": "direct call"
+    },
+    {
+      "from_id": "document_analysis_orchestrator",
+      "to_id": "legal_document_analyzer",
+      "label": "Document analysis request with context",
+      "protocol": "direct call"
+    },
+    {
+      "from_id": "legal_document_analyzer",
+      "to_id": "analysis_memory",
+      "label": "Store/retrieve analysis patterns and context",
+      "protocol": "direct call"
+    },
+    {
+      "from_id": "document_analysis_orchestrator",
+      "to_id": "bank_contract_intelligence",
+      "label": "Contract clause extraction and regulatory mapping",
+      "protocol": "HTTP"
+    },
+    {
+      "from_id": "document_analysis_orchestrator",
+      "to_id": "supply_chain_security_scanner",
+      "label": "Dependency audit and vulnerability scan requests",
+      "protocol": "HTTP"
+    },
+    {
+      "from_id": "document_analysis_orchestrator",
+      "to_id": "bank_client_ticketing_hub",
+      "label": "Create tickets for analysis findings",
+      "protocol": "HTTP"
+    },
+    {
+      "from_id": "document_analysis_orchestrator",
+      "to_id": "event_bus",
+      "label": "Publish analysis completion events",
+      "protocol": "AMQP"
+    },
+    {
+      "from_id": "event_bus",
+      "to_id": "bank_service_desk_connector",
+      "label": "Trigger ticket creation in bank systems",
+      "protocol": "AMQP"
+    },
+    {
+      "from_id": "event_bus",
+      "to_id": "release_notes_publisher",
+      "label": "Trigger release notes generation",
+      "protocol": "AMQP"
+    },
+    {
+      "from_id": "bank_service_desk_connector",
+      "to_id": "bank_client_ticketing_hub",
+      "label": "Sync ticket status and escalations",
+      "protocol": "HTTP"
+    },
+    {
+      "from_id": "release_notes_publisher",
+      "to_id": "document_repository",
+      "label": "Retrieve analysis results for publishing",
+      "protocol": "direct call"
+    },
+    {
+      "from_id": "document_analysis_orchestrator",
+      "to_id": "main_api_gateway",
+      "label": "Analysis results and status updates",
+      "protocol": "HTTP"
+    },
+    {
+      "from_id": "bank_contract_intelligence",
+      "to_id": "document_analysis_orchestrator",
+      "label": "Contract analysis results (clauses, diffs, mappings)",
+      "protocol": "HTTP"
+    },
+    {
+      "from_id": "supply_chain_security_scanner",
+      "to_id": "document_analysis_orchestrator",
+      "label": "Security scan results and SBOM validation",
+      "protocol": "HTTP"
+    },
+    {
+      "from_id": "bank_client_ticketing_hub",
+      "to_id": "document_analysis_orchestrator",
+      "label": "Ticket creation confirmations and SLA updates",
+      "p
+
+
+================================================================================
+[2026-03-26 12:05:11 UTC] architect :: arch_validator
+================================================================================
+
+--- PROMPT ---
+[system] You are a senior software architect reviewing an architecture draft for an AI agent system.
+
+Evaluate the architecture on 4 criteria (0.0 to 1.0 each):
+1. completeness: Are all necessary components present for the use case?
+2. correctness: Are architectural patterns applied correctly?
+3. applicability: Does this architecture actually solve the user's request?
+4. feasibility: Is this technically feasible to implement?
+
+Return ONLY a JSON object with scores, feedback, and issues list.
+Be specific in feedback — mention exact component names or flow issues.
+issues list should be empty if approved.
+
+[human] User request: Подтверждаю все требования.
+
+Primary pattern: hexagonal-architecture
+Patterns used: hexagonal-architecture, layered-architecture
+
+Components (11):
+- main_api_gateway (api_gateway): Main API Gateway — Handles incoming HTTP requests, authentication, rate limiting, and routes requests to appropriate internal services. [tech: NestJS]
+- document_analysis_orchestrator (orchestrator): Document Analysis Orchestrator — Coordinates the document analysis workflow, calling appropriate agents and tools in sequence based on document type and requirements. [tech: LangGraph]
+- legal_document_analyzer (llm_agent): Legal Document Analyzer — Primary agent that analyzes legal documents, extracts key clauses, identifies risks, and generates summaries.
+- bank_contract_intelligence (external): Bank Contract Intelligence — External vendor agent for contract clause extraction, amendment diffing, and regulatory mapping.
+- supply_chain_security_scanner (external): Supply Chain Security Scanner — External vendor agent for dependency auditing, SBOM validation, and vulnerability scanning of software components.
+- bank_client_ticketing_hub (external): Bank Client Ticketing Hub — External vendor agent for ticket ingestion, SLA tracking, and escalation workflows.
+- document_repository (database): Document Repository — Stores uploaded legal documents, analysis results, metadata, and version history. [tech: PostgreSQL 16]
+- analysis_memory (memory): Analysis Memory — Stores conversation context, analysis patterns, and learned document structures for improved future analyses. [tech: Redis]
+- event_bus (queue): Event Bus — Handles asynchronous communication between components, ensuring reliable message delivery for long-running analysis tasks. [tech: Kafka]
+- bank_service_desk_connector (tool): Bank Service Desk Connector — Tool that integrates with bank service desk systems to create tickets and track escalations based on analysis findings.
+- release_notes_publisher (tool): Release Notes Publisher — Tool that formats and publishes analysis results and release documentation to approved bank communication channels.
+
+Data flows (16):
+- main_api_gateway → document_analysis_orchestrator: HTTP POST /analyze with document payload [HTTP]
+- document_analysis_orchestrator → document_repository: Store uploaded document and metadata [direct call]
+- document_analysis_orchestrator → legal_document_analyzer: Document analysis request with context [direct call]
+- legal_document_analyzer → analysis_memory: Store/retrieve analysis patterns and context [direct call]
+- document_analysis_orchestrator → bank_contract_intelligence: Contract clause extraction and regulatory mapping [HTTP]
+- document_analysis_orchestrator → supply_chain_security_scanner: Dependency audit and vulnerability scan requests [HTTP]
+- document_analysis_orchestrator → bank_client_ticketing_hub: Create tickets for analysis findings [HTTP]
+- document_analysis_orchestrator → event_bus: Publish analysis completion events [AMQP]
+- event_bus → bank_service_desk_connector: Trigger ticket creation in bank systems [AMQP]
+- event_bus → release_notes_publisher: Trigger release notes generation [AMQP]
+- bank_service_desk_connector → bank_client_ticketing_hub: Sync ticket status and escalations [HTTP]
+- release_notes_publisher → document_repository: Retrieve analysis results for publishing [direct call]
+- document_analysis_orchestrator → main_api_gateway: Analysis results and status updates [HTTP]
+- bank_contract_intelligence → document_analysis_orchestrator: Contract analysis results (clauses, diffs, mappings) [HTTP]
+- supply_chain_security_scanner → document_analysis_orchestrator: Security scan results and SBOM validation [HTTP]
+- bank_client_ticketing_hub → document_analysis_orchestrator: Ticket creation confirmations and SLA updates [HTTP]
+
+--- RESPONSE ---
+```json
+{
+  "scores": {
+    "completeness": 0.7,
+    "correctness": 0.4,
+    "applicability": 0.8,
+    "feasibility": 0.9
+  },
+  "feedback": "The architecture shows good coverage of functional components for a document analysis system with external integrations. However, there are significant violations of hexagonal architecture principles: the orchestrator has direct dependencies on external systems and databases instead of using ports/adapters. The data flows show tight coupling between the core domain (orchestrator) and infrastructure concerns. The component selection appears appropriate for the described banking/legal analysis use case, and the technology choices are feasible.",
+  "issues": [
+    "Hexagonal architecture violation: document_analysis_orchestrator directly calls external services (bank_contract_intelligence, supply_chain_security_scanner, bank_client_ticketing_hub) instead of using ports/adapters",
+    "Hexagonal architecture violation: orchestrator directly accesses document_repository and analysis_memory instead of through repository interfaces",
+    "Missing abstraction layer: External services should be accessed through defined ports with adapters, not direct HTTP calls from domain logic",
+    "Event bus usage inconsistent: Some integrations use event bus (bank_service_desk_connector, release_notes_publisher) while others use direct HTTP calls",
+    "No clear separation between domain logic and infrastructure: orchestrator handles both workflow coordination and direct service integration",
+    "Missing error handling and retry mechanisms in data flows",
+    "No component for configuration management or service discovery for external integrations"
+  ]
+}
+```
+

@@ -12,12 +12,13 @@ class Settings(BaseSettings):
     # Redis (Policy Cache)
     redis_url: str = "redis://localhost:6379/0"
 
-    # Ollama (Red Teaming LLM)
-    ollama_base_url: str = "http://localhost:11434"
-    ollama_model: str = "llama3.2"
+    # Yandex Cloud LLM
+    yandex_base_url: str = "https://llm.api.cloud.yandex.net/v1"
+    yandex_api_key: str = ""
+    llm_model: str = "deepseek-v32/latest"
 
     # Red Teaming sidecar
-    redteam_url: str = "http://localhost:8001"
+    redteam_url: str = "http://localhost:8021"
     redteam_timeout_seconds: int = 15
 
     # Policy Cache

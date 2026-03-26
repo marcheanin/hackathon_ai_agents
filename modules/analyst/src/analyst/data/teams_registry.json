@@ -1,0 +1,32 @@
+{
+  "client_delivery": {
+    "team": "client-success-platform",
+    "language": "TypeScript",
+    "framework": "NestJS",
+    "code_style": "vendor-ts-standards-v2"
+  },
+  "product_knowledge": {
+    "team": "knowledge-engineering",
+    "language": "Python",
+    "framework": "FastAPI",
+    "code_style": "vendor-py-standards-v1"
+  },
+  "engineering_platform": {
+    "team": "developer-platform",
+    "language": "Go",
+    "framework": "Kubernetes operators",
+    "code_style": "vendor-go-standards-v1"
+  },
+  "security_compliance": {
+    "team": "product-security",
+    "language": "Python",
+    "framework": "FastAPI",
+    "code_style": "vendor-security-v1"
+  },
+  "platform": {
+    "team": "platform-engineering",
+    "language": "Go",
+    "framework": "Kubernetes",
+    "code_style": "vendor-platform-v1"
+  }
+}

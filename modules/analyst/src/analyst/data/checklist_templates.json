@@ -1,0 +1,68 @@
+{
+  "new_system": {
+    "client_delivery": {
+      "support_portal": [
+        {
+          "id": "system_name",
+          "description": "Указано название/тип системы (например Bank Client Support Portal).",
+          "required_fields": ["system_name"],
+          "capabilities": []
+        },
+        {
+          "id": "business_requirements",
+          "description": "Сформулированы бизнес-требования: как принимаем обращения банка, кто потребители.",
+          "required_fields": ["business_requirements"],
+          "capabilities": []
+        },
+        {
+          "id": "nfr_rps_latency",
+          "description": "NFR: rps/peak_rps/latency_p99_ms (и SLA % при наличии).",
+          "required_fields": ["nfr.rps", "nfr.peak_rps", "nfr.latency_p99_ms"],
+          "capabilities": []
+        },
+        {
+          "id": "bank_integration_channel",
+          "description": "Определён канал интеграции с банком (REST webhook, портал, файловый обмен) и лимиты/объёмы.",
+          "required_fields": ["transfer_mode", "limit_or_amount_rules"],
+          "capabilities": []
+        },
+        {
+          "id": "status_notification",
+          "description": "Уведомление банку о статусе тикета (SMS/e-mail) при необходимости.",
+          "required_fields": ["sms_confirm"],
+          "capabilities": ["sms_sending", "sms_confirm"]
+        },
+        {
+          "id": "supply_chain_gate",
+          "description": "Пороги проверки уязвимостей/SBOM для поставляемого ПО (аналог severity/CVSS).",
+          "required_fields": ["aml_check_threshold"],
+          "capabilities": ["vulnerability_scan", "sbom_validation", "dependency_audit"]
+        },
+        {
+          "id": "auto_escalation_policy",
+          "description": "Политика при отсутствии подтверждения/ответа (таймаут до эскалации или авто-закрытия).",
+          "required_fields": ["auto_cancel_after_minutes"],
+          "capabilities": []
+        },
+        {
+          "id": "rollback_strategy",
+          "description": "Стратегия отката релиза/конфигурации при сбое после деплоя портала.",
+          "required_fields": ["rollback_strategy"],
+          "capabilities": []
+        }
+      ]
+    }
+  },
+  "new_system:security_compliance": {
+    "security_compliance": {
+      "supply_chain": [
+        {
+          "id": "scan_scope",
+          "description": "Определены объекты сканирования (образ, jar, npm lock) и режим (CI/release).",
+          "required_fields": ["capabilities"],
+          "capabilities": ["vulnerability_scan"]
+        }
+      ]
+    }
+  }
+}

@@ -1,0 +1,698 @@
+
+================================================================================
+[2026-03-26 10:59:25 UTC] Аналитик :: analyze (session=demo-1)
+================================================================================
+
+--- INPUT MESSAGE ---
+Нужен агент для мониторинга курсов криптовалют и автоматической торговли на бирже Binance. Система CryptoTrader. RPS 50, p99 100ms. REST API. Python FastAPI. Blue-green deployment.
+
+--- OUTPUT ---
+{
+  "kind": "redirect_choice",
+  "agent_id": "agent_bank_client_ticketing_hub",
+  "agent_name": "Bank Client Ticketing Hub",
+  "question": "В банке уже есть существующий агент `Bank Client Ticketing Hub` (подходит по capabilities с score ~ 100). Хотите:\n1) Получить доступ к существующему агенту (redirect)\n2) Всё равно строить/докомпозировать новый (build)?"
+}
+
+
+================================================================================
+[2026-03-26 11:00:04 UTC] Аналитик :: analyze (session=demo-1)
+================================================================================
+
+--- INPUT MESSAGE ---
+Нет, строить новый
+
+--- OUTPUT ---
+{
+  "kind": "clarification",
+  "questions": [
+    "Укажите нагрузку и SLA: `RPS`, `peak RPS`, `p99 latency` (и SLA % при наличии).",
+    "Как банк передаёт обращения: REST webhook, портал, файлы? Какие лимиты/квоты?",
+    "Нужны ли уведомления банку о статусе (SMS/e-mail), шаблоны и таймауты?"
+  ],
+  "target_gaps": [
+    "nfr_rps_latency",
+    "bank_integration_channel",
+    "status_notification"
+  ],
+  "expected_impact": 20
+}
+
+
+================================================================================
+[2026-03-26 11:01:42 UTC] Аналитик :: analyze (session=demo-1)
+================================================================================
+
+--- INPUT MESSAGE ---
+RPS 200, peak 1000, p99 50ms, SLA 99.95%. Интеграция через REST API и WebSocket. Лимит 5000 сделок/час. Уведомления через Telegram bot. Таймаут эскалации 5 минут. CVSS порог 7.0. Стратегия отката canary deployment. Idempotency по order-id.
+
+--- OUTPUT ---
+
+================================================================================
+[2026-03-26 11:03:14 UTC] Аналитик :: analyze (session=demo-1)
+================================================================================
+
+--- INPUT MESSAGE ---
+RPS 200, peak 1000, p99 50ms, SLA 99.95%. Интеграция через REST API. Лимит 5000 сделок/час. Таймаут эскалации 5 минут. CVSS порог 7.0. Canary deployment. Idempotency по order-id.
+
+--- OUTPUT ---
+
+================================================================================
+[2026-03-26 11:06:53 UTC] Аналитик :: analyze (session=demo-p1)
+================================================================================
+
+--- INPUT MESSAGE ---
+Нужен агент CryptoTrader для мониторинга курсов криптовалют и автоторговли на Binance. RPS 200, peak 1000, p99 50ms, SLA 99.95%. REST API + WebSocket. Python FastAPI. Canary deployment. Эскалация 5 минут. CVSS порог 7.0. Idempotency по order-id. Лимит 5000 сделок/час.
+
+--- OUTPUT ---
+{
+  "kind": "clarification",
+  "questions": [
+    "Как назвать целевую систему (например: Bank Client Support Portal)?",
+    "Как банк передаёт обращения: REST webhook, портал, файлы? Какие лимиты/квоты?",
+    "Нужны ли уведомления банку о статусе (SMS/e-mail), шаблоны и таймауты?"
+  ],
+  "target_gaps": [
+    "system_name",
+    "bank_integration_channel",
+    "status_notification"
+  ],
+  "expected_impact": 20
+}
+
+
+================================================================================
+[2026-03-26 11:08:35 UTC] Аналитик :: analyze (session=demo-p1)
+================================================================================
+
+--- INPUT MESSAGE ---
+Система CryptoTrader. Интеграция через REST webhook и WebSocket с Binance API. Лимит 5000 сделок/час. Уведомления через Telegram Bot API, таймаут 30 секунд. CVSS порог 7.0. Стратегия отката canary.
+
+--- OUTPUT ---
+{
+  "kind": "final",
+  "concretized_request": {
+    "concretized_request": {
+      "meta": {
+        "session_id": "demo-p1",
+        "iterations": 1,
+        "confidence_score": 100,
+        "unresolved_gaps": [],
+        "decision": "build_with_agent_reuse"
+      },
+      "intent": "integrate",
+      "domain": "client_delivery",
+      "sub_domain": "support_portal",
+      "system_name": "CryptoTrader",
+      "business_requirements": [
+        "Нужен агент CryptoTrader для мониторинга курсов криптовалют и автоторговли на Binance. RPS 200, peak 1000, p99 50ms, SLA 99.95%. REST API + WebSocket. Python FastAPI. Canary deployment. Эскалация 5 минут. CVSS порог 7.0. Idempotency по order-id. Лимит 5000 сделок/час.",
+        "Система CryptoTrader. Интеграция через REST webhook и WebSocket с Binance API. Лимит 5000 сделок/час. Уведомления через Telegram Bot API, таймаут 30 секунд. CVSS порог 7.0. Стратегия отката canary."
+      ],
+      "nfr": {
+        "rps": 200,
+        "peak_rps": 1000,
+        "sla_percent": null,
+        "latency_p99_ms": 50,
+        "idempotency": null
+      },
+      "integrations": [],
+      "constraints": null,
+      "enriched_context": {
+        "mcp_data": {
+          "apis": [
+            "Bank Service Desk Connector API",
+            "Client SLA & Escalation API",
+            "Release Notes Publishing API"
+          ],
+          "policies": [
+            "NDA & data residency with bank clients",
+            "Ticket data retention 7y (configurable)",
+            "Bank communication only via approved channels"
+          ],
+          "infrastructure": [
+            "K8s client-delivery-prod",
+            "PostgreSQL 16",
+            "Kafka",
+            "Redis"
+          ],
+          "team": {
+            "team": "client-success-platform",
+            "language": "TypeScript",
+            "framework": "NestJS",
+            "code_style": "vendor-ts-standards-v2"
+          },
+          "monitoring": {
+            "required": [
+              "prometheus",
+              "grafana",
+              "elk"
+            ],
+            "sla_alerting": true
+          }
+        },
+        "agent_candidates": [
+          {
+            "id": "agent_bank_client_ticketing_hub",
+            "name": "Bank Client Ticketing Hub",
+            "version": "2.3.0",
+            "status": "active",
+            "description": "Приём и маршрутизация обращений от банков-клиентов: REST/webhook, SLA, эскалации, уведомления о статусе (в т.ч. SMS/e-mail).\n\n[auto-expanded-details]\nagent_id: agent_bank_client_ticketing_hub\ndomain: client_delivery/support_portal\ntags: bank-client, tickets, sla, support\ncapabilities: client_ticket_ingest, bank_sla_tracking, escalation_workflow, webhook_ingestion, sms_sending, sms_confirm\ninput.required: ticket_payload, bank_tenant_id\noutput.fields: ticket_id, sla_tier, routing_queue\ndependencies: Bank Service Desk Connector API, Notification Router API\ncomposition_hints: Вешать перед внутренним task tracker bridge, Использовать для единого SLA по всем банкам-тенантам\napi:\n- protocol: REST\n- base_url: https://internal.vendor.example/agents/bank-ticketing/v2\n- auth: OAuth2\n- rate_limit: 400/s\n- docs_url: https://wiki.vendor.example/agents/bank-ticketing\nsla:\n{\"availability_percent\": 99.9, \"latency_p99_ms\": 400, \"support_hours\": \"24/7\"}\n",
+            "domain": "client_delivery",
+            "sub_domain": "support_portal",
+            "capabilities": [
+              "client_ticket_ingest",
+              "bank_sla_tracking",
+              "escalation_workflow",
+              "webhook_ingestion",
+              "sms_sending",
+              "sms_confirm"
+            ],
+            "tags": [
+              "bank-client",
+              "tickets",
+              "sla",
+              "support"
+            ],
+            "input_schema": {
+              "type": "object",
+              "required": [
+                "ticket_payload",
+                "bank_tenant_id"
+              ]
+            },
+            "output_schema": {
+              "type": "object",
+              "fields": [
+                "ticket_id",
+                "sla_tier",
+                "routing_queue"
+              ]
+            },
+            "api": {
+              "protocol": "REST",
+              "base_url": "https://internal.vendor.example/agents/bank-ticketing/v2",
+              "auth": "OAuth2",
+              "rate_limit": "400/s",
+              "docs_url": "https://wiki.vendor.example/agents/bank-ticketing"
+            },
+            "mcp_server_uri": "mcp://vendor-agents/bank-ticketing",
+            "owner_team": "client-success-platform",
+            "contact": "cs-platform@vendor.example",
+            "sla": {
+              "availability_percent": 99.9,
+              "latency_p99_ms": 400,
+              "support_hours": "24/7"
+            },
+            "dependencies": [
+              "Bank Service Desk Connector API",
+              "Notification Router API"
+            ],
+            "composable": true,
+
+
+================================================================================
+[2026-03-26 11:18:01 UTC] Аналитик :: analyze (session=demo-p2)
+================================================================================
+
+--- INPUT MESSAGE ---
+Нужна система FraudDetector для обнаружения мошенничества в реальном времени. Анализ транзакций банковских карт. RPS 5000, peak 20000, p99 30ms, SLA 99.99%. Интеграция с процессинговым центром через gRPC. Kafka для потока событий. ML-модель для скоринга. PostgreSQL для хранения правил. Redis для кэша. Уведомления через SMS. CVSS 9.0. Blue-green deployment.
+
+--- OUTPUT ---
+{
+  "kind": "clarification",
+  "questions": [
+    "Как банк передаёт обращения: REST webhook, портал, файлы? Какие лимиты/квоты?",
+    "Что делать при отсутствии ответа: эскалация через N минут, auto-close или pending?",
+    "Какая стратегия отката релиза/конфигурации при сбое?"
+  ],
+  "target_gaps": [
+    "bank_integration_channel",
+    "auto_escalation_policy",
+    "rollback_strategy"
+  ],
+  "expected_impact": 20
+}
+
+
+================================================================================
+[2026-03-26 11:19:20 UTC] Аналитик :: analyze (session=demo-p2)
+================================================================================
+
+--- INPUT MESSAGE ---
+Обращения через gRPC от процессингового центра. Лимит 50000 транзакций/минуту. Эскалация через 2 минуты с блокировкой карты. Стратегия отката blue-green. CVSS 9.0.
+
+--- OUTPUT ---
+{
+  "kind": "final",
+  "concretized_request": {
+    "concretized_request": {
+      "meta": {
+        "session_id": "demo-p2",
+        "iterations": 1,
+        "confidence_score": 88,
+        "unresolved_gaps": [],
+        "decision": "build_with_agent_reuse"
+      },
+      "intent": "new_system",
+      "domain": "client_delivery",
+      "sub_domain": "support_portal",
+      "system_name": "FraudDetector для обнаружения мошенничества в реальном времени",
+      "business_requirements": [
+        "Нужна система FraudDetector для обнаружения мошенничества в реальном времени. Анализ транзакций банковских карт. RPS 5000, peak 20000, p99 30ms, SLA 99.99%. Интеграция с процессинговым центром через gRPC. Kafka для потока событий. ML-модель для скоринга. PostgreSQL для хранения правил. Redis для кэша. Уведомления через SMS. CVSS 9.0. Blue-green deployment.",
+        "Обращения через gRPC от процессингового центра. Лимит 50000 транзакций/минуту. Эскалация через 2 минуты с блокировкой карты. Стратегия отката blue-green. CVSS 9.0."
+      ],
+      "nfr": {
+        "rps": 5000,
+        "peak_rps": 20000,
+        "sla_percent": null,
+        "latency_p99_ms": 30,
+        "idempotency": null
+      },
+      "integrations": [],
+      "constraints": null,
+      "enriched_context": {
+        "mcp_data": {
+          "apis": [
+            "Bank Service Desk Connector API",
+            "Client SLA & Escalation API",
+            "Release Notes Publishing API"
+          ],
+          "policies": [
+            "NDA & data residency with bank clients",
+            "Ticket data retention 7y (configurable)",
+            "Bank communication only via approved channels"
+          ],
+          "infrastructure": [
+            "K8s client-delivery-prod",
+            "PostgreSQL 16",
+            "Kafka",
+            "Redis"
+          ],
+          "team": {
+            "team": "client-success-platform",
+            "language": "TypeScript",
+            "framework": "NestJS",
+            "code_style": "vendor-ts-standards-v2"
+          },
+          "monitoring": {
+            "required": [
+              "prometheus",
+              "grafana",
+              "elk"
+            ],
+            "sla_alerting": true
+          }
+        },
+        "agent_candidates": [
+          {
+            "id": "agent_bank_client_ticketing_hub",
+            "name": "Bank Client Ticketing Hub",
+            "version": "2.3.0",
+            "status": "active",
+            "description": "Приём и маршрутизация обращений от банков-клиентов: REST/webhook, SLA, эскалации, уведомления о статусе (в т.ч. SMS/e-mail).\n\n[auto-expanded-details]\nagent_id: agent_bank_client_ticketing_hub\ndomain: client_delivery/support_portal\ntags: bank-client, tickets, sla, support\ncapabilities: client_ticket_ingest, bank_sla_tracking, escalation_workflow, webhook_ingestion, sms_sending, sms_confirm\ninput.required: ticket_payload, bank_tenant_id\noutput.fields: ticket_id, sla_tier, routing_queue\ndependencies: Bank Service Desk Connector API, Notification Router API\ncomposition_hints: Вешать перед внутренним task tracker bridge, Использовать для единого SLA по всем банкам-тенантам\napi:\n- protocol: REST\n- base_url: https://internal.vendor.example/agents/bank-ticketing/v2\n- auth: OAuth2\n- rate_limit: 400/s\n- docs_url: https://wiki.vendor.example/agents/bank-ticketing\nsla:\n{\"availability_percent\": 99.9, \"latency_p99_ms\": 400, \"support_hours\": \"24/7\"}\n",
+            "domain": "client_delivery",
+            "sub_domain": "support_portal",
+            "capabilities": [
+              "client_ticket_ingest",
+              "bank_sla_tracking",
+              "escalation_workflow",
+              "webhook_ingestion",
+              "sms_sending",
+              "sms_confirm"
+            ],
+            "tags": [
+              "bank-client",
+              "tickets",
+              "sla",
+              "support"
+            ],
+            "input_schema": {
+              "type": "object",
+              "required": [
+                "ticket_payload",
+                "bank_tenant_id"
+              ]
+            },
+            "output_schema": {
+              "type": "object",
+              "fields": [
+                "ticket_id",
+                "sla_tier",
+                "routing_queue"
+              ]
+            },
+            "api": {
+              "protocol": "REST",
+              "base_url": "https://internal.vendor.example/agents/bank-ticketing/v2",
+              "auth": "OAuth2",
+              "rate_limit": "400/s",
+              "docs_url": "https://wiki.vendor.example/agents/bank-ticketing"
+            },
+            "mcp_server_uri": "mcp://vendor-agents/bank-ticketing",
+            "owner_team": "client-success-platform",
+            "contact": "cs-platform@vendor.example",
+            "sla": {
+              "availability_percent": 99.9,
+              "latency_p99_ms": 400,
+              "support_hours": "24/7"
+            },
+            "dependencies": [
+              "Bank Service
+
+
+================================================================================
+[2026-03-26 11:28:57 UTC] Аналитик :: analyze (session=demo-p3)
+================================================================================
+
+--- INPUT MESSAGE ---
+Нужна система DocAnalyzer для автоматического анализа юридических документов. OCR, NLP, извлечение ключевых условий из договоров. RPS 20, p99 2000ms. REST API. Хранение в S3 + PostgreSQL. Интеграция с 1С. Python. Rolling deployment. Эскалация через 30 минут юристу. CVSS 7.0.
+
+--- OUTPUT ---
+{
+  "kind": "final",
+  "concretized_request": {
+    "concretized_request": {
+      "meta": {
+        "session_id": "demo-p3",
+        "iterations": 0,
+        "confidence_score": 100,
+        "unresolved_gaps": [],
+        "decision": "build_with_agent_reuse"
+      },
+      "intent": "new_system",
+      "domain": "security_compliance",
+      "sub_domain": "supply_chain",
+      "system_name": "DocAnalyzer для автоматического анализа юридических документов",
+      "business_requirements": [
+        "Нужна система DocAnalyzer для автоматического анализа юридических документов. OCR, NLP, извлечение ключевых условий из договоров. RPS 20, p99 2000ms. REST API. Хранение в S3 + PostgreSQL. Интеграция с 1С. Python. Rolling deployment. Эскалация через 30 минут юристу. CVSS 7.0."
+      ],
+      "nfr": {
+        "rps": 20,
+        "peak_rps": null,
+        "sla_percent": null,
+        "latency_p99_ms": 2000,
+        "idempotency": null
+      },
+      "integrations": [],
+      "constraints": null,
+      "enriched_context": {
+        "mcp_data": {
+          "apis": [
+            "Bank Service Desk Connector API",
+            "Client SLA & Escalation API",
+            "Release Notes Publishing API"
+          ],
+          "policies": [
+            "NDA & data residency with bank clients",
+            "Ticket data retention 7y (configurable)",
+            "Bank communication only via approved channels"
+          ],
+          "infrastructure": [
+            "K8s client-delivery-prod",
+            "PostgreSQL 16",
+            "Kafka",
+            "Redis"
+          ],
+          "team": {
+            "team": "client-success-platform",
+            "language": "TypeScript",
+            "framework": "NestJS",
+            "code_style": "vendor-ts-standards-v2"
+          },
+          "monitoring": {
+            "required": [
+              "prometheus",
+              "grafana",
+              "elk"
+            ],
+            "sla_alerting": true
+          }
+        },
+        "agent_candidates": [
+          {
+            "id": "agent_bank_client_ticketing_hub",
+            "name": "Bank Client Ticketing Hub",
+            "version": "2.3.0",
+            "status": "active",
+            "description": "Приём и маршрутизация обращений от банков-клиентов: REST/webhook, SLA, эскалации, уведомления о статусе (в т.ч. SMS/e-mail).\n\n[auto-expanded-details]\nagent_id: agent_bank_client_ticketing_hub\ndomain: client_delivery/support_portal\ntags: bank-client, tickets, sla, support\ncapabilities: client_ticket_ingest, bank_sla_tracking, escalation_workflow, webhook_ingestion, sms_sending, sms_confirm\ninput.required: ticket_payload, bank_tenant_id\noutput.fields: ticket_id, sla_tier, routing_queue\ndependencies: Bank Service Desk Connector API, Notification Router API\ncomposition_hints: Вешать перед внутренним task tracker bridge, Использовать для единого SLA по всем банкам-тенантам\napi:\n- protocol: REST\n- base_url: https://internal.vendor.example/agents/bank-ticketing/v2\n- auth: OAuth2\n- rate_limit: 400/s\n- docs_url: https://wiki.vendor.example/agents/bank-ticketing\nsla:\n{\"availability_percent\": 99.9, \"latency_p99_ms\": 400, \"support_hours\": \"24/7\"}\n",
+            "domain": "client_delivery",
+            "sub_domain": "support_portal",
+            "capabilities": [
+              "client_ticket_ingest",
+              "bank_sla_tracking",
+              "escalation_workflow",
+              "webhook_ingestion",
+              "sms_sending",
+              "sms_confirm"
+            ],
+            "tags": [
+              "bank-client",
+              "tickets",
+              "sla",
+              "support"
+            ],
+            "input_schema": {
+              "type": "object",
+              "required": [
+                "ticket_payload",
+                "bank_tenant_id"
+              ]
+            },
+            "output_schema": {
+              "type": "object",
+              "fields": [
+                "ticket_id",
+                "sla_tier",
+                "routing_queue"
+              ]
+            },
+            "api": {
+              "protocol": "REST",
+              "base_url": "https://internal.vendor.example/agents/bank-ticketing/v2",
+              "auth": "OAuth2",
+              "rate_limit": "400/s",
+              "docs_url": "https://wiki.vendor.example/agents/bank-ticketing"
+            },
+            "mcp_server_uri": "mcp://vendor-agents/bank-ticketing",
+            "owner_team": "client-success-platform",
+            "contact": "cs-platform@vendor.example",
+            "sla": {
+              "availability_percent": 99.9,
+              "latency_p99_ms": 400,
+              "support_hours": "24/7"
+            },
+            "dependencies": [
+              "Bank Service Desk Connector API",
+              "Notification Router API"
+            ],
+            "composable": true,
+            "composition_hints": [
+              "Вешать перед внутренним task tracker bridge",
+              "Использовать для единого SLA по всем
+
+
+================================================================================
+[2026-03-26 11:43:01 UTC] Аналитик :: analyze (session=demo-p3b)
+================================================================================
+
+--- INPUT MESSAGE ---
+Нужна система DocAnalyzer для автоматического анализа юридических документов. OCR и NLP извлечение ключевых условий из договоров. RPS 20, p99 2000ms, SLA 99.9%. REST API интеграция с 1С. S3 + PostgreSQL. Python FastAPI. Rolling deployment. Эскалация через 30 минут юристу. CVSS 7.0. Idempotency по document-hash.
+
+--- OUTPUT ---
+{
+  "kind": "clarification",
+  "questions": [
+    "Укажите нагрузку и SLA: `RPS`, `peak RPS`, `p99 latency` (и SLA % при наличии).",
+    "Как банк передаёт обращения: REST webhook, портал, файлы? Какие лимиты/квоты?",
+    "Нужны ли уведомления банку о статусе (SMS/e-mail), шаблоны и таймауты?"
+  ],
+  "target_gaps": [
+    "nfr_rps_latency",
+    "bank_integration_channel",
+    "status_notification"
+  ],
+  "expected_impact": 20
+}
+
+
+================================================================================
+[2026-03-26 11:45:16 UTC] Аналитик :: analyze (session=demo-p3b)
+================================================================================
+
+--- INPUT MESSAGE ---
+RPS 20, peak 100, p99 2000ms, SLA 99.9%. Документы загружаются через REST API upload endpoint. Лимит 500 документов/час. Уведомления юристу через email, таймаут 30 минут. Rolling deployment. CVSS 7.0.
+
+--- OUTPUT ---
+{
+  "kind": "clarification",
+  "questions": [
+    "Как банк передаёт обращения: REST webhook, портал, файлы? Какие лимиты/квоты?"
+  ],
+  "target_gaps": [
+    "bank_integration_channel"
+  ],
+  "expected_impact": 20
+}
+
+
+================================================================================
+[2026-03-26 11:53:28 UTC] Аналитик :: analyze (session=demo-p3b)
+================================================================================
+
+--- INPUT MESSAGE ---
+SBOM не обязателен. Автоматическая блокировка договора при CVSS > 7.0. Данные хранятся 10 лет. Rollback через откат на предыдущую версию контейнера.
+
+--- OUTPUT ---
+{
+  "kind": "clarification",
+  "questions": [
+    "Как банк передаёт обращения: REST webhook, портал, файлы? Какие лимиты/квоты?"
+  ],
+  "target_gaps": [
+    "bank_integration_channel"
+  ],
+  "expected_impact": 20
+}
+
+
+================================================================================
+[2026-03-26 11:57:15 UTC] Аналитик :: analyze (session=demo-p3b)
+================================================================================
+
+--- INPUT MESSAGE ---
+Все требования указаны выше, прошу финализировать.
+
+--- OUTPUT ---
+{
+  "kind": "clarification",
+  "questions": [
+    "Как банк передаёт обращения: REST webhook, портал, файлы? Какие лимиты/квоты?"
+  ],
+  "target_gaps": [
+    "bank_integration_channel"
+  ],
+  "expected_impact": 20
+}
+
+
+================================================================================
+[2026-03-26 11:58:41 UTC] Аналитик :: analyze (session=demo-p3b)
+================================================================================
+
+--- INPUT MESSAGE ---
+Подтверждаю все требования.
+
+--- OUTPUT ---
+{
+  "kind": "final",
+  "concretized_request": {
+    "concretized_request": {
+      "meta": {
+        "session_id": "demo-p3b",
+        "iterations": 4,
+        "confidence_score": 88,
+        "unresolved_gaps": [],
+        "decision": "build_with_agent_reuse"
+      },
+      "intent": "new_system",
+      "domain": "client_delivery",
+      "sub_domain": "support_portal",
+      "system_name": "DocAnalyzer для автоматического анализа юридических документов",
+      "business_requirements": [
+        "Нужна система DocAnalyzer для автоматического анализа юридических документов. OCR и NLP извлечение ключевых условий из договоров. RPS 20, p99 2000ms, SLA 99.9%. REST API интеграция с 1С. S3 + PostgreSQL. Python FastAPI. Rolling deployment. Эскалация через 30 минут юристу. CVSS 7.0. Idempotency по document-hash.",
+        "RPS 20, peak 100, p99 2000ms, SLA 99.9%. Документы загружаются через REST API upload endpoint. Лимит 500 документов/час. Уведомления юристу через email, таймаут 30 минут. Rolling deployment. CVSS 7.0.",
+        "SBOM не обязателен. Автоматическая блокировка договора при CVSS > 7.0. Данные хранятся 10 лет. Rollback через откат на предыдущую версию контейнера.",
+        "Все требования указаны выше, прошу финализировать.",
+        "Подтверждаю все требования."
+      ],
+      "nfr": {
+        "rps": 20,
+        "peak_rps": 100,
+        "sla_percent": null,
+        "latency_p99_ms": 2000,
+        "idempotency": null
+      },
+      "integrations": [],
+      "constraints": null,
+      "enriched_context": {
+        "mcp_data": {
+          "apis": [
+            "Bank Service Desk Connector API",
+            "Client SLA & Escalation API",
+            "Release Notes Publishing API"
+          ],
+          "policies": [
+            "NDA & data residency with bank clients",
+            "Ticket data retention 7y (configurable)",
+            "Bank communication only via approved channels"
+          ],
+          "infrastructure": [
+            "K8s client-delivery-prod",
+            "PostgreSQL 16",
+            "Kafka",
+            "Redis"
+          ],
+          "team": {
+            "team": "client-success-platform",
+            "language": "TypeScript",
+            "framework": "NestJS",
+            "code_style": "vendor-ts-standards-v2"
+          },
+          "monitoring": {
+            "required": [
+              "prometheus",
+              "grafana",
+              "elk"
+            ],
+            "sla_alerting": true
+          }
+        },
+        "agent_candidates": [
+          {
+            "id": "agent_bank_client_ticketing_hub",
+            "name": "Bank Client Ticketing Hub",
+            "version": "2.3.0",
+            "status": "active",
+            "description": "Приём и маршрутизация обращений от банков-клиентов: REST/webhook, SLA, эскалации, уведомления о статусе (в т.ч. SMS/e-mail).\n\n[auto-expanded-details]\nagent_id: agent_bank_client_ticketing_hub\ndomain: client_delivery/support_portal\ntags: bank-client, tickets, sla, support\ncapabilities: client_ticket_ingest, bank_sla_tracking, escalation_workflow, webhook_ingestion, sms_sending, sms_confirm\ninput.required: ticket_payload, bank_tenant_id\noutput.fields: ticket_id, sla_tier, routing_queue\ndependencies: Bank Service Desk Connector API, Notification Router API\ncomposition_hints: Вешать перед внутренним task tracker bridge, Использовать для единого SLA по всем банкам-тенантам\napi:\n- protocol: REST\n- base_url: https://internal.vendor.example/agents/bank-ticketing/v2\n- auth: OAuth2\n- rate_limit: 400/s\n- docs_url: https://wiki.vendor.example/agents/bank-ticketing\nsla:\n{\"availability_percent\": 99.9, \"latency_p99_ms\": 400, \"support_hours\": \"24/7\"}\n",
+            "domain": "client_delivery",
+            "sub_domain": "support_portal",
+            "capabilities": [
+              "client_ticket_ingest",
+              "bank_sla_tracking",
+              "escalation_workflow",
+              "webhook_ingestion",
+              "sms_sending",
+              "sms_confirm"
+            ],
+            "tags": [
+              "bank-client",
+              "tickets",
+              "sla",
+              "support"
+            ],
+            "input_schema": {
+              "type": "object",
+              "required": [
+                "ticket_payload",
+                "bank_tenant_id"
+              ]
+            },
+            "output_schema": {
+              "type": "object",
+              "fields": [
+                "ticket_id",
+                "sla_tier",
+                "routing_queue"
+              ]
+            },
+            "api": {
+              "protocol": "REST",
+              "base_url": "https://internal.vendor.example/agents/bank-ticketing/v2",
+              "auth": "OAuth2",
+              "rate_limit": "400/s",
+              "docs_url": "https://wiki.vendor.example/agents/bank-ticketing"
+            },
+            "mcp_server_uri": "mcp://vendor-agents/bank-ticketing",
+            "owner_team": "client-success-platform",
+            "c
+

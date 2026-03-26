@@ -1,5 +1,6 @@
 __pycache__/
 *.py[cod]
+*.pyd
 *.egg-info/
 dist/
 build/
@@ -7,3 +8,6 @@ build/
 *.sqlite3
 .pytest_cache/
 .ruff_cache/
+.venv/
+.claude/
+.venv-system

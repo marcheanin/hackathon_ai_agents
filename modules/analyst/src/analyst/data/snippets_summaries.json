@@ -1,0 +1,153 @@
+[
+  {
+    "id": "tmpl_internal_git_mr_flow",
+    "name": "Internal Git + MR governance template",
+    "summary": "Шаблон политик репозитория: branch protection, required reviewers, signed tags для релизов, интеграция с внутренним task tracker.\n\n[auto-expanded-details]\n\nsnippet_id: tmpl_internal_git_mr_flow\ndomain: engineering_platform\ntags: git, merge_request_policy, repository_lifecycle, branch_protection, engineering_platform\nstack: go, kubernetes, postgresql\ncomplexity: medium\nfiles_count: 14\n",
+    "tags": [
+      "git",
+      "merge_request_policy",
+      "repository_lifecycle",
+      "branch_protection",
+      "engineering_platform"
+    ],
+    "domain": "engineering_platform",
+    "stack": [
+      "go",
+      "kubernetes",
+      "postgresql"
+    ],
+    "complexity": "medium",
+    "files_count": 14
+  },
+  {
+    "id": "tmpl_cicd_reusable_pipelines",
+    "name": "Reusable CI/CD pipeline library",
+    "summary": "Библиотека переиспользуемых пайплайнов: lint, test, SBOM, подпись артефактов, promotion dev→staging→prod.\n\n[auto-expanded-details]\n\nsnippet_id: tmpl_cicd_reusable_pipelines\ndomain: engineering_platform\ntags: pipeline_template_library, build_artifact_signing, deployment_gate, cicd\nstack: yaml, kubernetes, vault\ncomplexity: high\nfiles_count: 22\n",
+    "tags": [
+      "pipeline_template_library",
+      "build_artifact_signing",
+      "deployment_gate",
+      "cicd"
+    ],
+    "domain": "engineering_platform",
+    "stack": [
+      "yaml",
+      "kubernetes",
+      "vault"
+    ],
+    "complexity": "high",
+    "files_count": 22
+  },
+  {
+    "id": "tmpl_bank_ticket_portal",
+    "name": "Bank-client ticket ingestion service",
+    "summary": "Сервис приёма тикетов от банков: webhook/REST, нормализация SLA, эскалации, связка с внутренним трекером и Confluence.\n\n[auto-expanded-details]\n\nsnippet_id: tmpl_bank_ticket_portal\ndomain: client_delivery\ntags: client_ticket_ingest, bank_sla_tracking, webhook_ingestion, support_portal\nstack: typescript, nestjs, postgresql\ncomplexity: medium\nfiles_count: 16\n",
+    "tags": [
+      "client_ticket_ingest",
+      "bank_sla_tracking",
+      "webhook_ingestion",
+      "support_portal"
+    ],
+    "domain": "client_delivery",
+    "stack": [
+      "typescript",
+      "nestjs",
+      "postgresql"
+    ],
+    "complexity": "medium",
+    "files_count": 16
+  },
+  {
+    "id": "tmpl_ai_product_qa_assistant",
+    "name": "AI product Q&A assistant",
+    "summary": "RAG-ассистент по продуктовой документации с ответами и ссылками на источники.\n\n[auto-expanded-details]\n\nsnippet_id: tmpl_ai_product_qa_assistant\ndomain: product_knowledge\ntags: rag_answering, semantic_doc_qa, embedding_search, ai_assistant\nstack: python, fastapi, postgresql, opensearch\ncomplexity: high\nfiles_count: 31\n",
+    "tags": [
+      "rag_answering",
+      "semantic_doc_qa",
+      "embedding_search",
+      "ai_assistant"
+    ],
+    "domain": "product_knowledge",
+    "stack": [
+      "python",
+      "fastapi",
+      "postgresql",
+      "opensearch"
+    ],
+    "complexity": "high",
+    "files_count": 31
+  },
+  {
+    "id": "tmpl_incident_rca_flow",
+    "name": "Incident intake + RCA flow",
+    "summary": "Пайплайн алертов, эскалации on-call, постмортем и трекинг corrective actions.\n\n[auto-expanded-details]\n\nsnippet_id: tmpl_incident_rca_flow\ndomain: platform\ntags: incident_intake, oncall_escalation, postmortem_builder, rca_tracking\nstack: go, kafka, postgresql\ncomplexity: medium\nfiles_count: 19\n",
+    "tags": [
+      "incident_intake",
+      "oncall_escalation",
+      "postmortem_builder",
+      "rca_tracking"
+    ],
+    "domain": "platform",
+    "stack": [
+      "go",
+      "kafka",
+      "postgresql"
+    ],
+    "complexity": "medium",
+    "files_count": 19
+  },
+  {
+    "id": "tmpl_license_compliance_gate",
+    "name": "OSS license compliance gate",
+    "summary": "Гейт совместимости OSS-лицензий и генерация third-party notices для поставки клиенту.\n\n[auto-expanded-details]\n\nsnippet_id: tmpl_license_compliance_gate\ndomain: security_compliance\ntags: license_scan, license_policy_gate, third_party_notice_builder\nstack: python, postgresql\ncomplexity: medium\nfiles_count: 12\n",
+    "tags": [
+      "license_scan",
+      "license_policy_gate",
+      "third_party_notice_builder"
+    ],
+    "domain": "security_compliance",
+    "stack": [
+      "python",
+      "postgresql"
+    ],
+    "complexity": "medium",
+    "files_count": 12
+  },
+  {
+    "id": "tmpl_internal_api_gateway",
+    "name": "Internal API gateway blueprint",
+    "summary": "Шаблон внутреннего API gateway: auth proxy, маршрутизация тенантов, профили rate limit.\n\n[auto-expanded-details]\n\nsnippet_id: tmpl_internal_api_gateway\ndomain: engineering_platform\ntags: api_gateway_policy, auth_proxy, rate_limit_profile, tenant_routing\nstack: go, envoy, redis\ncomplexity: high\nfiles_count: 28\n",
+    "tags": [
+      "api_gateway_policy",
+      "auth_proxy",
+      "rate_limit_profile",
+      "tenant_routing"
+    ],
+    "domain": "engineering_platform",
+    "stack": [
+      "go",
+      "envoy",
+      "redis"
+    ],
+    "complexity": "high",
+    "files_count": 28
+  },
+  {
+    "id": "tmpl_release_governance",
+    "name": "Release governance automation",
+    "summary": "Автоматизация release notes, approvals и changelog для клиентских релизов.\n\n[auto-expanded-details]\n\nsnippet_id: tmpl_release_governance\ndomain: client_delivery\ntags: release_notes_builder, deploy_approval_workflow, changelog_compiler, release_calendar\nstack: typescript, postgresql\ncomplexity: medium\nfiles_count: 15\n",
+    "tags": [
+      "release_notes_builder",
+      "deploy_approval_workflow",
+      "changelog_compiler",
+      "release_calendar"
+    ],
+    "domain": "client_delivery",
+    "stack": [
+      "typescript",
+      "postgresql"
+    ],
+    "complexity": "medium",
+    "files_count": 15
+  }
+]

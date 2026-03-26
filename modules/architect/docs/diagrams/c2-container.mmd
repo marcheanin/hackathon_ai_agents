@@ -1,0 +1,44 @@
+C4Context
+    title C2: Container Diagram — Система Генерации Агентов (V3)
+
+    Person(client, "Клиент", "Отправляет описание системы для генерации AI-агента")
+    Person(expert_ib, "Эксперт ИБ", "Наполняет стандарты безопасности")
+    Person(expert_ka, "Эксперт КА", "Наполняет стандарты архитектуры")
+
+    System_Boundary(system, "Система Генерации Агентов (Контейнеры)") {
+        Container(analyst, "ИИ Аналитик", "ИИ-Модуль, Python + LangChain", "Декомпозиция запроса, оценка достаточности информации")
+        Container(validator, "Модуль Валидации", "Алгоритмика/ИИ, Python", "Валидация ответов Аналитика и Архитектора")
+        Container(architect, "ИИ Архитектор", "ИИ-Модуль, Python + LangGraph", "Блочная генерация архитектуры (Mermaid/YAML/JSON)")
+        Container(builder, "Модуль Реализации", "Сборщик, Python", "Компоновка репо/кода по ответу Архитектора")
+
+        ContainerDb(db0, "БД 0: Стандарты", "PostgreSQL / JSON", "Стандарты ответа, архитектуры, безопасности")
+        ContainerDb(db1, "БД 1: РАГ Архитектур", "Qdrant (Vector DB)", "Релевантные архитектуры и паттерны")
+        ContainerDb(db2, "БД 2: БД Шаблонов Кода", "Хранилище", "Сниппеты кода, файлы конфигураций")
+    }
+
+    System_Ext(llm_api, "API LLM", "OpenAI-compatible (Ollama qwen3.5:9b)")
+    System_Ext(mcp_registry, "Реестр MCP", "Доступные MCP-серверы")
+    System_Ext(tool_registry, "Реестр тулзов", "Доступные инструменты агентов")
+
+    Rel(client, analyst, "Описание системы", "HTTP")
+    Rel(client, builder, "Получает готовый репозиторий / код")
+
+    Rel(analyst, validator, "Конкретизированный запрос")
+    Rel(analyst, mcp_registry, "Запрос доступных MCP")
+    Rel(analyst, tool_registry, "Запрос доступных тулзов")
+
+    Rel(validator, db0, "Загрузка стандартов")
+    Rel(validator, architect, "Проверенный запрос")
+    Rel(architect, validator, "Черновик архитектуры")
+    Rel(validator, builder, "Одобренная архитектура")
+
+    Rel(architect, db1, "Поиск паттернов", "HTTP/gRPC")
+    Rel(builder, db2, "Поиск нужных сниппетов")
+
+    Rel(analyst, llm_api, "LLM вызовы", "OpenAI REST API")
+    Rel(architect, llm_api, "LLM вызовы", "OpenAI REST API")
+    Rel(validator, llm_api, "LLM вызовы", "OpenAI REST API")
+    Rel(builder, llm_api, "LLM вызовы", "OpenAI REST API")
+
+    Rel(expert_ib, db0, "Стандарты безопасности")
+    Rel(expert_ka, db0, "Стандарты архитектуры")
