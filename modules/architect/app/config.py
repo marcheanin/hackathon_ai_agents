@@ -7,8 +7,12 @@ class Settings(BaseSettings):
     llm_base_url: str = Field("https://llm.api.cloud.yandex.net/v1", alias="YANDEX_BASE_URL")
     llm_api_key: str = Field("", alias="YANDEX_API_KEY")
     yandex_folder_id: str = Field("", alias="YANDEX_FOLDER_ID")
-    llm_model: str = Field("deepseek-v32/latest", alias="LLM_MODEL_NAME")
+    llm_model_name: str = Field("deepseek-v32/latest", alias="LLM_MODEL_NAME")
     llm_temperature: float = Field(0.2, alias="LLM_TEMPERATURE")
+
+    @property
+    def llm_model(self) -> str:
+        return f"gpt://{self.yandex_folder_id}/{self.llm_model_name}"
 
     # Embeddings (Yandex Cloud)
     embedding_base_url: str = Field("https://llm.api.cloud.yandex.net/v1", alias="EMBEDDING_BASE_URL")

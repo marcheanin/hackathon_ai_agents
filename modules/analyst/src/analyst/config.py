@@ -12,9 +12,19 @@ def _load_dotenv_if_exists() -> None:
     - existing OS env vars are not overridden
     - .env is used as fallback source
     """
-    repo_root = Path(__file__).resolve().parents[4]
-    env_path = repo_root / ".env"
-    if not env_path.exists():
+    # Ищем .env поднимаясь по дереву каталогов
+    current = Path(__file__).resolve().parent
+    env_path = None
+    for _ in range(10):
+        candidate = current / ".env"
+        if candidate.exists():
+            env_path = candidate
+            break
+        parent = current.parent
+        if parent == current:
+            break
+        current = parent
+    if env_path is None:
         return
 
     for raw_line in env_path.read_text(encoding="utf-8").splitlines():

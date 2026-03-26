@@ -18,7 +18,7 @@ MVAL_URL = os.getenv("MVAL_URL", "http://mval:8020")
 ARCHITECT_URL = os.getenv("ARCHITECT_URL", "http://architect:8030")
 IMPLEMENTOR_URL = os.getenv("IMPLEMENTOR_URL", "http://implementor:8040")
 
-TIMEOUT = httpx.Timeout(120.0, connect=10.0)
+TIMEOUT = httpx.Timeout(600.0, connect=10.0)
 
 app = FastAPI(
     title="Оркестратор — Система Генерации Агентов",
@@ -68,6 +68,13 @@ async def run_pipeline(req: PipelineRequest) -> PipelineResponse:
             return PipelineResponse(
                 stage="analyst",
                 status="redirect",
+                data=analyst_data,
+            )
+
+        if kind == "redirect_choice":
+            return PipelineResponse(
+                stage="analyst",
+                status="redirect_choice",
                 data=analyst_data,
             )
 

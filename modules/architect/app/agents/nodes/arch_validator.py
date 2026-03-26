@@ -69,7 +69,7 @@ async def validate_architecture_node(state: AgentState) -> dict:
     ]
 
     response = await llm.ainvoke(messages)
-    raw = parse_llm_json(response.content)
+    raw = parse_llm_json(response)
 
     # LLM иногда возвращает scores как вложенный dict — распаковываем на верхний уровень
     if "scores" in raw and isinstance(raw["scores"], dict):

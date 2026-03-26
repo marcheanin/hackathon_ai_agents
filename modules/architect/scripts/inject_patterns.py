@@ -13,7 +13,7 @@ import uuid
 from pathlib import Path
 
 import frontmatter
-from langchain_openai import OpenAIEmbeddings
+import httpx
 from qdrant_client import AsyncQdrantClient
 from qdrant_client.models import Distance, PayloadSchemaType, PointStruct, VectorParams
 
@@ -21,6 +21,24 @@ from qdrant_client.models import Distance, PayloadSchemaType, PointStruct, Vecto
 sys.path.insert(0, str(Path(__file__).parent.parent))
 
 from app.config import settings
+
+
+async def _yandex_embed(text: str) -> list[float]:
+    """Получает эмбеддинг через нативный Yandex API."""
+    # Yandex embedding API имеет лимит на длину текста — обрезаем до ~2000 символов
+    text = text[:2000]
+    model_uri = f"emb://{settings.yandex_folder_id}/{settings.embedding_model}"
+    async with httpx.AsyncClient(timeout=60.0) as client:
+        resp = await client.post(
+            "https://llm.api.cloud.yandex.net/foundationModels/v1/textEmbedding",
+            headers={
+                "Authorization": f"Api-Key {settings.llm_api_key}",
+                "Content-Type": "application/json",
+            },
+            json={"modelUri": model_uri, "text": text},
+        )
+        resp.raise_for_status()
+        return resp.json()["embedding"]
 
 
 async def main(patterns_dir: Path, recreate: bool = False) -> None:
@@ -64,13 +82,6 @@ async def main(patterns_dir: Path, recreate: bool = False) -> None:
 
     print(f"Найдено файлов: {len(md_files)}")
 
-    embeddings_model = OpenAIEmbeddings(
-        base_url=settings.embedding_base_url,
-        api_key=settings.embedding_api_key,
-        model=settings.embedding_model,
-        check_embedding_ctx_length=False,
-    )
-
     points: list[PointStruct] = []
     for md_file in md_files:
         post = frontmatter.load(str(md_file))
@@ -87,7 +98,7 @@ async def main(patterns_dir: Path, recreate: bool = False) -> None:
 
         # Текст для эмбеддинга: заголовок + теги + контент
         embed_text = f"{title}\nTags: {', '.join(tags)}\nUse cases: {', '.join(use_cases)}\n\n{content}"
-        vector = await embeddings_model.aembed_query(embed_text)
+        vector = await _yandex_embed(embed_text)
 
         points.append(
             PointStruct(

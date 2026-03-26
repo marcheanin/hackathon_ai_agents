@@ -63,7 +63,7 @@ async def design_integrations_node(state: AgentState) -> dict:
     ]
 
     response = await llm.ainvoke(messages)
-    result = DataFlowList(**parse_llm_json(response.content))
+    result = DataFlowList(**parse_llm_json(response))
 
     # Валидация: фильтруем потоки с несуществующими id
     valid_ids = {c.id for c in (state.get("components") or [])}

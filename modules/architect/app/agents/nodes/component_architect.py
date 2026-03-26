@@ -68,7 +68,7 @@ async def design_components_node(state: AgentState) -> dict:
     ]
 
     response = await llm.ainvoke(messages)
-    result = ComponentList(**parse_llm_json(response.content))
+    result = ComponentList(**parse_llm_json(response))
 
     return {
         "components": result.components,

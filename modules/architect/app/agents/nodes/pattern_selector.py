@@ -51,7 +51,7 @@ async def select_patterns_node(state: AgentState) -> dict:
     ]
 
     response = await llm.ainvoke(messages)
-    result = PatternSelection(**parse_llm_json(response.content))
+    result = PatternSelection(**parse_llm_json(response))
 
     return {
         "selected_patterns": result.selected_patterns,

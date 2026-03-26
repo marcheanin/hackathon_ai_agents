@@ -42,13 +42,23 @@ def _find_balanced_json(text: str) -> str | None:
     return None
 
 
-def parse_llm_json(content: str) -> dict:
+def parse_llm_json(content) -> dict:
     """Парсит JSON из ответа LLM, обрабатывая типичные проблемы:
     - Markdown code fences (```json ... ```)
     - Лишний текст до/после JSON
     - Пустой content
     - Обрезанный JSON (незакрытые скобки)
+    - DeepSeek: content может быть пустым, а ответ — в reasoning_content (additional_kwargs)
     """
+    # Поддержка AIMessage объектов (langchain)
+    if hasattr(content, "content"):
+        msg = content
+        text_content = msg.content or ""
+        # DeepSeek через Yandex Cloud кладёт ответ в reasoning_content
+        if not text_content and hasattr(msg, "additional_kwargs"):
+            text_content = msg.additional_kwargs.get("reasoning_content", "")
+        content = text_content
+
     if not content or not content.strip():
         raise ValueError("LLM returned empty content")
 
